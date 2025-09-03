@@ -63,11 +63,3 @@ export const ErrorKeys = Object.freeze({
   between: 'between',
   custom: 'custom',
 });
-
-export interface ResolvedVariantsProps {
-  between?: IValidationBetween;
-  formatter?: IFormatter;
-  limits?: IValidationLimits;
-  maxLength?: number;
-  sanitize?: ISanitize;
-}

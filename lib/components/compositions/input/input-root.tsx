@@ -21,7 +21,6 @@ import {
   IValidationBetween,
   IValidationLimits,
   NumericPayload,
-  ResolvedVariantsProps,
   TextPayload,
 } from './types/types';
 
@@ -46,14 +45,14 @@ type InputRootProps<Data> = BaseInputRootProps<Data> &
     | {
         type: 'text';
         onValueChange?: (payload: TextPayload<Data>) => void;
-        textProcessor: {
+        textProcessor?: {
           maxLength?: number;
         };
       }
     | {
         type: 'number';
         onValueChange?: (payload: NumericPayload<Data>) => void;
-        textProcessor: {
+        textProcessor?: {
           sanitize?: ISanitize;
           maxLength?: number;
           between?: IValidationBetween;
@@ -88,14 +87,23 @@ export default forwardRef(function InputRoot<Data>(props: InputRootProps<Data>, 
   const [leftAddonWidth, setLeftAddonWidth] = useState<string | number>(0);
   const [rightAddonWidth, setRightAddonWidth] = useState<string | number>(0);
 
-  const resolvedVariantsProps = useMemo<ResolvedVariantsProps>(() => {
+  const resolvedVariantsProps = useMemo(() => {
     if (type === 'number') {
-      const { between, formatter, limits, maxLength, sanitize } = textProcessor;
-      return { between, formatter, limits, maxLength, sanitize };
+      return {
+        between: textProcessor?.between,
+        formatter: textProcessor?.formatter,
+        limits: textProcessor?.limits,
+        maxLength: textProcessor?.maxLength,
+        sanitize: textProcessor?.sanitize,
+      };
     }
-
-    const { maxLength } = textProcessor;
-    return { between: undefined, formatter: undefined, limits: undefined, maxLength, sanitize: undefined };
+    return {
+      between: undefined,
+      formatter: undefined,
+      limits: undefined,
+      maxLength: textProcessor?.maxLength,
+      sanitize: undefined,
+    };
   }, [textProcessor, type]);
 
   const {

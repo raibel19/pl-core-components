@@ -1,7 +1,15 @@
 import { useCallback, useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react';
 import { numberFormatter } from 'ux-pl/utils/numbers';
 
-import { ErrorKeys, InputChangePayload, InputType, ResolvedVariantsProps } from '../types/types';
+import {
+  ErrorKeys,
+  IFormatter,
+  InputChangePayload,
+  InputType,
+  ISanitize,
+  IValidationBetween,
+  IValidationLimits,
+} from '../types/types';
 import {
   errorReducer,
   isBetweenExceeded,
@@ -12,12 +20,16 @@ import {
   sanitize,
 } from '../utils/utils';
 
-interface UseManagedInputProps<Data> extends ResolvedVariantsProps {
+interface UseManagedInputProps<Data> {
+  between?: IValidationBetween;
   data?: Data;
   defaultValue?: string;
+  formatter?: IFormatter;
+  limits?: IValidationLimits;
   maxLength?: number;
   reset?: boolean;
   resetToInitialValue?: boolean;
+  sanitize?: ISanitize;
   type: InputType;
   value?: string;
   onValueChange?: (payload: InputChangePayload<Data>) => void;
