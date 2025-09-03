@@ -15,6 +15,7 @@ export interface IItem {
   render?: (props: { item: IItem; isSelected: boolean; children: React.ReactNode }) => React.ReactNode;
 }
 
+export type Items = { data: IItem[]; searchValue: string | null };
 export type ItemsWithIdentifier = IItem & { identifier: string };
 
 export type ErrorState = Map<string, string>;

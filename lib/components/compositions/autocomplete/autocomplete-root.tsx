@@ -7,23 +7,23 @@ import {
   AutocompleteActionsContextProps,
   AutocompleteContext,
   AutocompleteContextProps,
+  AutocompleteLayoutContext,
+  AutocompleteLayoutContextProps,
 } from './context';
 import useManagedAutocomplete from './hooks/use-managed-autocomplete';
 import useTheme from './hooks/use-theme';
-import { IItem, AutocompleteStateChangePayload, AutocompleteTheme } from './types/types';
+import { AutocompleteStateChangePayload, AutocompleteTheme, IItem, Items } from './types/types';
 
-interface AutocompleteRootProps<Data> {
+interface BaseAutocompleteRootProps<Data> {
+  blurAction?: 'restore' | 'clear' | 'keep';
   children: ReactNode;
   className?: string;
   data?: Data;
   defaultValue?: string;
   disabled?: boolean;
   isInvalid?: boolean;
-  items: { data: IItem[]; searchValue: string | null };
-  loading?: boolean;
+  items: Items;
   minLengthRequired?: number;
-  mode?: 'async' | 'static';
-  blurAction?: 'restore' | 'clear' | 'keep';
   reset?: boolean;
   resetOnReselect?: boolean;
   resetToInitialValue?: boolean;
@@ -32,14 +32,26 @@ interface AutocompleteRootProps<Data> {
   onStateChange?: (payload: AutocompleteStateChangePayload<Data>) => void;
   setReset?: React.Dispatch<React.SetStateAction<boolean>>;
   subscribeIsInvalid?: (isInvalid: boolean) => void;
-  // setLoading?: React.Dispatch<React.SetStateAction<boolean>>;
 }
+
+type AutocompleteRootProps<Data> = BaseAutocompleteRootProps<Data> &
+  (
+    | {
+        mode: 'async';
+        loading?: boolean;
+      }
+    | {
+        mode: 'static';
+        filterItems?: (items: IItem[], inputValue: string) => IItem[];
+      }
+  );
 
 export default forwardRef(function AutocompleteRoot<Data>(
   props: AutocompleteRootProps<Data>,
   ref: ForwardedRef<HTMLDivElement>,
 ) {
   const {
+    blurAction = 'restore',
     children,
     className,
     data,
@@ -47,16 +59,13 @@ export default forwardRef(function AutocompleteRoot<Data>(
     disabled,
     isInvalid,
     items,
-    loading = false,
     minLengthRequired = 0,
     mode = 'async',
-    blurAction = 'restore',
     reset,
     resetOnReselect,
     resetToInitialValue,
     theme,
     value,
-    // setLoading,
     onStateChange,
     setReset,
     subscribeIsInvalid,
@@ -68,6 +77,13 @@ export default forwardRef(function AutocompleteRoot<Data>(
   const [leftAddonWidth, setLeftAddonWidth] = useState<string | number>(0);
   const [rightAddonWidth, setRightAddonWidth] = useState<string | number>(0);
   const [isLoadingMounted, setIsLoadingMounted] = useState<boolean>(false);
+
+  const resolvedVariantsProps = useMemo(() => {
+    if (props.mode === 'async') {
+      return { filterItems: undefined, loading: props.loading ?? false };
+    }
+    return { filterItems: props.filterItems, loading: false };
+  }, [props]);
 
   const {
     errors,
@@ -85,19 +101,20 @@ export default forwardRef(function AutocompleteRoot<Data>(
     onTooglePopover,
     registerKeydownOverride,
   } = useManagedAutocomplete<Data>({
+    blurAction,
     data,
     defaultValue,
     items,
-    loading,
+    loading: resolvedVariantsProps.loading,
     minLengthRequired,
     mode,
     reset,
     resetOnReselect,
     resetToInitialValue,
     value,
-    blurAction,
     onStateChange,
     setReset,
+    filterItems: resolvedVariantsProps.filterItems,
   });
 
   const isInvalidMemo = useMemo(() => isInvalid || Boolean(errors.length), [errors.length, isInvalid]);
@@ -112,16 +129,12 @@ export default forwardRef(function AutocompleteRoot<Data>(
       isOpen: state.isOpen,
       isSearching: state.isSearching,
       lastValidSelection: state.lastValidSelection,
-      leftAddonWidth,
       preSelectedValue: state.preSelectedValue,
-      rightAddonWidth,
       selectedValue: state.selectedValue,
     }),
     [
       initialValueRef,
       isInvalidMemo,
-      leftAddonWidth,
-      rightAddonWidth,
       state.filteredItems,
       state.inputValue,
       state.isLoading,
@@ -152,10 +165,8 @@ export default forwardRef(function AutocompleteRoot<Data>(
       onSelectItem,
       onToogleLoading,
       onTooglePopover,
-      setIsLoadingMounted,
-      setLeftAddonWidth,
-      setRightAddonWidth,
       registerKeydownOverride,
+      setIsLoadingMounted,
     }),
     [
       data,
@@ -164,19 +175,24 @@ export default forwardRef(function AutocompleteRoot<Data>(
       id,
       isLoadingMounted,
       minLengthRequired,
+      theme,
       onBlur,
       onChange,
       onFocus,
+      onkeyDown,
       onMouseDown,
       onPreSelectItem,
       onReset,
       onSelectItem,
       onToogleLoading,
       onTooglePopover,
-      onkeyDown,
       registerKeydownOverride,
-      theme,
     ],
+  );
+
+  const constextLayoutValue = useMemo<AutocompleteLayoutContextProps>(
+    () => ({ leftAddonWidth, rightAddonWidth, setLeftAddonWidth, setRightAddonWidth }),
+    [leftAddonWidth, rightAddonWidth],
   );
 
   useEffect(() => {
@@ -189,21 +205,16 @@ export default forwardRef(function AutocompleteRoot<Data>(
     };
   }, [isInvalidMemo, subscribeIsInvalid]);
 
-  // useEffect(() => {
-  //   setLoading?.((prev) => {
-  //     if (prev !== state.isLoading) return state.isLoading;
-  //     return prev;
-  //   });
-  // }, [setLoading, state.isLoading]);
-
   return (
     <div ref={ref} className={cn(themeCore, themeStyle, 'w-full space-y-1', className || null)}>
       <div className="relative w-full">
-        <AutocompleteContext.Provider value={contextValue}>
-          <AutocompleteActionsContext.Provider value={contextActionsValue}>
-            {children}
-          </AutocompleteActionsContext.Provider>
-        </AutocompleteContext.Provider>
+        <AutocompleteLayoutContext.Provider value={constextLayoutValue}>
+          <AutocompleteContext.Provider value={contextValue}>
+            <AutocompleteActionsContext.Provider value={contextActionsValue}>
+              {children}
+            </AutocompleteActionsContext.Provider>
+          </AutocompleteContext.Provider>
+        </AutocompleteLayoutContext.Provider>
       </div>
     </div>
   );

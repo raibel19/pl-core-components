@@ -11,9 +11,7 @@ export interface AutocompleteContextProps {
   isOpen: boolean;
   isSearching: boolean;
   lastValidSelection: ItemsWithIdentifier | null;
-  leftAddonWidth: string | number;
   preSelectedValue: string | undefined;
-  rightAddonWidth: string | number;
   selectedValue: ItemsWithIdentifier | null;
 }
 
@@ -35,16 +33,22 @@ export interface AutocompleteActionsContextProps<Data = unknown> {
   onSelectItem: (identifier: string, itemsToSearchIn?: Map<string, ItemsWithIdentifier>) => void;
   onToogleLoading: (value: boolean) => void;
   onTooglePopover: (value: boolean) => void;
+  registerKeydownOverride: (key: string, handler: (event: React.KeyboardEvent<HTMLInputElement>) => void) => () => void;
   setIsLoadingMounted: (isMounted: boolean) => void;
+}
+
+export interface AutocompleteLayoutContextProps {
+  leftAddonWidth: string | number;
+  rightAddonWidth: string | number;
   setLeftAddonWidth: (width: string | number) => void;
   setRightAddonWidth: (width: string | number) => void;
-  registerKeydownOverride: (key: string, handler: (event: React.KeyboardEvent<HTMLInputElement>) => void) => () => void;
 }
 
 export const AutocompleteContext = createContext<AutocompleteContextProps | undefined>(undefined);
 export const AutocompleteActionsContext = createContext<AutocompleteActionsContextProps<unknown> | undefined>(
   undefined,
 );
+export const AutocompleteLayoutContext = createContext<AutocompleteLayoutContextProps | undefined>(undefined);
 
 export const useAutocompleteContext = () => {
   const context = useContext(AutocompleteContext);
@@ -58,6 +62,14 @@ export const useAutocompleteActionsContext = () => {
   const context = useContext(AutocompleteActionsContext);
   if (context === undefined) {
     throw new Error('useAutocompleteActionsContext debe ser usado dentro de un Input.Group');
+  }
+  return context;
+};
+
+export const useAutocompleteLayopoutContext = () => {
+  const context = useContext(AutocompleteLayoutContext);
+  if (context === undefined) {
+    throw new Error('useAutocompleteLayopoutContext debe ser usado dentro de un Input.Root');
   }
   return context;
 };

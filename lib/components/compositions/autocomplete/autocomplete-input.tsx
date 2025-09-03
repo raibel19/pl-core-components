@@ -5,7 +5,7 @@ import { cn } from '../../../lib/utils';
 import { Input } from '../../ui/input';
 import { PopoverTrigger } from '../../ui/popover';
 import { inputVariants } from './autocomplete-input.variants';
-import { useAutocompleteActionsContext, useAutocompleteContext } from './context';
+import { useAutocompleteActionsContext, useAutocompleteContext, useAutocompleteLayopoutContext } from './context';
 
 type AutocompleteInputForwardRef = {
   element: HTMLInputElement | null;
@@ -23,8 +23,9 @@ export default forwardRef<AutocompleteInputForwardRef, AutocompleteInputProps>(f
     ...moreProps
   } = props;
 
-  const { inputValue, isInvalid, leftAddonWidth, rightAddonWidth } = useAutocompleteContext();
+  const { inputValue, isInvalid } = useAutocompleteContext();
   const { id, onChange, onkeyDown, onMouseDown, onFocus, onBlur } = useAutocompleteActionsContext();
+  const { leftAddonWidth, rightAddonWidth } = useAutocompleteLayopoutContext();
 
   const inputRef = useRef<HTMLInputElement>(null);
 
