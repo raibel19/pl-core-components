@@ -1,0 +1,11 @@
+.success {
+  color: hsl(var(--success, 142.1 76.2% 36.3%));
+}
+
+.warning {
+  color: hsl(var(--warning, 38 92% 50%));
+}
+
+.info {
+  color: hsl(var(--info, 199 89% 48%));
+}

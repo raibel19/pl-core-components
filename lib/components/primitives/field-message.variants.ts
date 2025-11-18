@@ -1,13 +1,15 @@
 import { cva } from 'class-variance-authority';
 
+import styles from './primitives.module.css';
+
 export const messageVariants = cva('list-inside list-none space-y-1', {
   variants: {
     type: {
-      default: 'text-muted-foreground',
+      default: 'text-foreground',
       error: 'text-destructive',
-      warning: 'text-ux-warning',
-      info: 'text-ux-info',
-      success: 'text-success',
+      warning: styles.warning,
+      info: styles.info,
+      success: styles.success,
     },
     size: {
       sm: 'text-xs',
