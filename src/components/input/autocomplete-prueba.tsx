@@ -124,6 +124,7 @@ export default function AutocompleteTestBed() {
             onStateChange={(p) => handleRealisticSearch(p, setNormalSearchData, setNormalSearchLoading)}
             data={[1, 2, 3]}
             isInvalid={true}
+            minLengthRequired={4}
           >
             <Autocomplete.Label
               text="Autocomplete Modulos"

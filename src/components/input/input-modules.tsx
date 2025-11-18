@@ -3,10 +3,8 @@ import { useEffect, useRef, useState } from 'react';
 
 import { Input } from '@/components/compositions/input';
 
-import AutocompleteTestBed from './autocomplete-prueba';
-
 export default function InputModules() {
-  const [controllerValue, setControllerValue] = useState<string>('123456');
+  const [controllerValue, setControllerValue] = useState<string>('');
   const [isLoadig, setIsLoadig] = useState(true);
   const leftAddonRef = useRef<HTMLDivElement>(null);
 
@@ -24,7 +22,7 @@ export default function InputModules() {
     <div className="flex justify-between gap-4">
       <div className="space-y-1">
         <h4 className="text-sm font-semibold">@nextjs</h4>
-        <p className="text-sm">The React Framework – created and maintained by @vercel.</p>
+        <p className="text-sm">The React Framework - created and maintained by @vercel.</p>
         <div className="text-xs text-muted-foreground">Joined December 2021</div>
       </div>
     </div>
@@ -33,35 +31,43 @@ export default function InputModules() {
   return (
     <div className="grid grid-cols-1 grid-rows-[1fr_auto] gap-y-5">
       <div className="flex gap-3">
+        <button onClick={() => setControllerValue('789sdffd')}>Change Value</button>
+      </div>
+      <div className="flex gap-3">
         <Input
           type="number"
-          defaultValue="7890"
-          // value={controllerValue}
+          // defaultValue="7890"
+          value={controllerValue}
           data={[1, 2, 3]}
           // disabled={true}
           // isInvalid={true}
           textProcessor={{
             maxLength: 10,
-            limits: {
-              min: 10,
-              //   max: 90,
-              maxMessageError: 'Max error',
-              minMessageError: 'Min error',
-            },
-            between: {
-              min: 10,
-              max: 90,
-              //   messageError: 'Between',
-            },
+            // limits: {
+            //   min: 10,
+            //   // max: 90,
+            //   // maxMessageError: 'Max error',
+            //   minMessageError: 'Min error',
+            // },
+            // between: {
+            //   min: 10,
+            //   max: 90,
+            //   messageError: 'Between',
+            // },
             formatter: {
               active: true,
               options: {
-                style: 'currency',
-                minimumFractionDigits: 1,
+                style: 'decimal',
+                minimumFractionDigits: 0,
                 maximumFractionDigits: 2,
                 compactDisplay: 'long',
                 currencySign: 'standard',
               },
+              locale: 'es-MX',
+            },
+            sanitize: {
+              allowNegative: true,
+              maxDecimalDigits: 3,
             },
           }}
           subscribeIsInvalid={(isInvalid) => console.log('isInvalid: ', isInvalid)}
@@ -176,9 +182,9 @@ export default function InputModules() {
           )}
         </Input>
       </div>
-      <div className="flex gap-3">
+      {/* <div className="flex gap-3">
         <AutocompleteTestBed />
-      </div>
+      </div> */}
     </div>
   );
 }
