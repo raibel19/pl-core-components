@@ -6,7 +6,7 @@ export type AutocompleteStateChangePayload<Data = unknown> = {
   selectedValue: string;
 };
 
-export type AutocompleteTheme = 'default' | 'inherit' | (string & {});
+// export type AutocompleteTheme = 'default' | 'inherit' | (string & {});
 
 export interface IItem {
   label: string;
@@ -14,17 +14,14 @@ export interface IItem {
   disabled?: boolean;
   render?: (props: { item: IItem; isSelected: boolean; children: React.ReactNode }) => React.ReactNode;
 }
-
 export type Items = { data: IItem[]; searchValue: string | null };
 export type ItemsWithIdentifier = IItem & { identifier: string };
 
 export type ErrorState = Map<string, string>;
-
 export type ErrorAction =
   | { type: 'ADD_ERROR'; payload: { key: string; message: string } }
   | { type: 'REMOVE_ERROR'; payload: { key: string } }
   | { type: 'CLEAR_ERRORS' };
-
 export const ErrorKeys = Object.freeze({
   custom: 'custom',
 });
@@ -41,7 +38,7 @@ export interface IAutocompleteState {
 }
 
 export type AutocompleteAction =
-  | { type: 'SET_INPUT_VALUE'; payload: { value: string; openPopover: boolean } }
+  | { type: 'SET_INPUT_VALUE'; payload: { value: string; openPopover: boolean; clearItems?: boolean } }
   | { type: 'SELECT_ITEM'; payload: ItemsWithIdentifier }
   | { type: 'CLEAR_SELECTION' }
   | { type: 'OPEN_POPOVER' }
@@ -85,4 +82,5 @@ export const nonOpeningKeys = [
   // Enter y Escape
   'Enter',
   'Escape',
+  'Delete',
 ];

@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react';
 
-import { AutocompleteTheme, ItemsWithIdentifier } from './types/types';
+import { ItemsWithIdentifier } from './types/types';
 
 export interface AutocompleteContextProps {
   filteredItems: Map<string, ItemsWithIdentifier>;
@@ -19,9 +19,7 @@ export interface AutocompleteActionsContextProps<Data = unknown> {
   data?: Data;
   disabled?: boolean;
   id: string;
-  isLoadingMounted: boolean;
   minLengthRequired: number;
-  theme?: AutocompleteTheme;
   errors: string[];
   onBlur: (event: React.FocusEvent<HTMLInputElement, Element>) => void;
   onChange: (value: string) => void;
@@ -29,12 +27,11 @@ export interface AutocompleteActionsContextProps<Data = unknown> {
   onkeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => void;
   onMouseDown: (event: React.MouseEvent<HTMLInputElement, MouseEvent>) => void;
   onPreSelectItem: (value: string) => void;
-  onReset: () => void;
+  onReset: (options?: { closePopover?: boolean }) => void;
   onSelectItem: (identifier: string, itemsToSearchIn?: Map<string, ItemsWithIdentifier>) => void;
   onToogleLoading: (value: boolean) => void;
   onTooglePopover: (value: boolean) => void;
   registerKeydownOverride: (key: string, handler: (event: React.KeyboardEvent<HTMLInputElement>) => void) => () => void;
-  setIsLoadingMounted: (isMounted: boolean) => void;
 }
 
 export interface AutocompleteLayoutContextProps {

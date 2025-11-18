@@ -1,12 +1,8 @@
-import { ComponentPropsWithoutRef, forwardRef, ReactNode } from 'react';
+import { ComponentPropsWithoutRef, forwardRef, ReactNode, useEffect, useState } from 'react';
 
 import { cn } from '../../../lib/utils';
-import { CommandList } from '../../ui/command';
 import { PopoverContent } from '../../ui/popover';
-import autocompleteStyle from './autocomplete.module.css';
-import { useAutocompleteActionsContext } from './context';
-import useTheme from './hooks/use-theme';
-
+import { useAutocompleteContext } from './context';
 interface AutocompletePopoverProps extends ComponentPropsWithoutRef<typeof PopoverContent> {
   children: ReactNode;
   className?: string;
@@ -15,8 +11,24 @@ interface AutocompletePopoverProps extends ComponentPropsWithoutRef<typeof Popov
 export default forwardRef<HTMLDivElement, AutocompletePopoverProps>(function AutocompletePopover(props, ref) {
   const { children, className, ...moreProps } = props;
 
-  const { theme } = useAutocompleteActionsContext();
-  const { themeCore, themeStyle } = useTheme({ style: autocompleteStyle, theme });
+  const { isOpen } = useAutocompleteContext();
+
+  const [shouldRender, setShouldRender] = useState(isOpen);
+
+  useEffect(() => {
+    let timeOut: NodeJS.Timeout;
+
+    if (isOpen) setShouldRender(true);
+    else {
+      timeOut = setTimeout(() => {
+        setShouldRender(false);
+      }, 150);
+    }
+
+    return () => {
+      clearTimeout(timeOut);
+    };
+  }, [isOpen]);
 
   return (
     <PopoverContent
@@ -28,9 +40,9 @@ export default forwardRef<HTMLDivElement, AutocompletePopoverProps>(function Aut
           e.preventDefault();
         }
       }}
-      className={cn(themeCore, themeStyle, 'w-[--radix-popover-trigger-width] p-0', className || null)}
+      className={cn('w-[--radix-popover-trigger-width] p-0', className || null)}
     >
-      <CommandList>{children}</CommandList>
+      {shouldRender ? children : null}
     </PopoverContent>
   );
 });

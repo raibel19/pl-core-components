@@ -1,4 +1,4 @@
-import { forwardRef, ReactNode, useRef } from 'react';
+import { forwardRef, ReactNode, useLayoutEffect, useRef } from 'react';
 
 import mergeRefs from '../../../lib/merge-refs';
 import { cn } from '../../../lib/utils';
@@ -21,6 +21,14 @@ export default forwardRef<HTMLDivElement, AutocompleteLeftAddonProps>(function A
     const width = divWidth ? `${divWidth + 7}px` : '0.75rem';
     setLeftAddonWidth(width);
   });
+
+  useLayoutEffect(() => {
+    if (addonRef.current) {
+      const divWidth = addonRef.current.getBoundingClientRect().width;
+      const width = divWidth ? `${divWidth + 7}px` : '0.75rem';
+      setLeftAddonWidth(width);
+    }
+  }, [setLeftAddonWidth]);
 
   const mergeRef = mergeRefs(ref, addonRef);
 

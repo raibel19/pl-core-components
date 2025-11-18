@@ -1,4 +1,4 @@
-import { Command as CommandPrimitive } from 'cmdk';
+import { Command } from 'cmdk';
 import { ComponentPropsWithoutRef, forwardRef, useCallback, useImperativeHandle, useRef } from 'react';
 
 import { cn } from '../../../lib/utils';
@@ -69,7 +69,7 @@ export default forwardRef<AutocompleteInputForwardRef, AutocompleteInputProps>(f
 
   return (
     <PopoverTrigger asChild>
-      <CommandPrimitive.Input
+      <Command.Input
         asChild
         ref={inputRef}
         {...moreProps}
@@ -90,7 +90,7 @@ export default forwardRef<AutocompleteInputForwardRef, AutocompleteInputProps>(f
           )}
           style={{ '--leftWidth': `${leftAddonWidth}`, '--rightWidth': `${rightAddonWidth}` } as React.CSSProperties}
         />
-      </CommandPrimitive.Input>
+      </Command.Input>
     </PopoverTrigger>
   );
 });

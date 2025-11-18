@@ -1,27 +1,42 @@
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { memo, ReactNode, useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { cn } from '../../../lib/utils';
-import { CommandGroup } from '../../ui/command';
+import { CommandGroup, CommandList } from '../../ui/command';
 import AutocompleteItem from './autocomplete-item';
+import AutocompleteLoading from './autocomplete-loading';
+import AutocompleteMessages from './autocomplete-messages';
+import styles from './autocomplete.module.css';
 import { useAutocompleteActionsContext, useAutocompleteContext } from './context';
-import useListVirtualizeScroll from './hooks/use-list-virtualize-scroll';
 import { ItemsWithIdentifier } from './types/types';
+import { findNextEnabledIndex } from './utils/utils';
 
 interface AutocompleteListVirtualizeProps {
   className?: string;
   classNameGroup?: string;
   classNameItem?: string;
+  loadingConfig?: {
+    showText?: boolean;
+    text?: string;
+    content?: ReactNode;
+  };
+  messagesConfig?: {
+    className?: string;
+    initialText?: string;
+    noResultText?: string;
+    minLengthText?: string;
+  };
   children?: (props: { item: ItemsWithIdentifier; isSelected: boolean }) => React.ReactNode;
 }
 
-export default function AutocompleteListVirtualize(props: AutocompleteListVirtualizeProps) {
-  const { children, className, classNameGroup, classNameItem } = props;
+function AutocompleteListVirtualize(props: AutocompleteListVirtualizeProps) {
+  const { children, className, classNameGroup, classNameItem, loadingConfig, messagesConfig } = props;
+
   const parentRef = useRef<HTMLDivElement | null>(null);
 
-  const { filteredItems, isLoading, isOpen, selectedValue, preSelectedValue, inputValue, isSearching } =
+  const { filteredItems, selectedValue, preSelectedValue, inputValue, isLoading, isSearching, isOpen } =
     useAutocompleteContext();
-  const { minLengthRequired, registerKeydownOverride, onPreSelectItem } = useAutocompleteActionsContext();
+  const { registerKeydownOverride, onPreSelectItem, minLengthRequired } = useAutocompleteActionsContext();
 
   const items = useMemo(() => Array.from(filteredItems.values()), [filteredItems]);
   const itemsIndexMap = useMemo(() => {
@@ -30,22 +45,29 @@ export default function AutocompleteListVirtualize(props: AutocompleteListVirtua
     return map;
   }, [items]);
 
-  const identifier = selectedValue?.identifier;
-  const hidden = filteredItems.size === 0 || inputValue.length < minLengthRequired || isLoading || isSearching;
+  const showLoading = (isLoading || isSearching) && inputValue.length >= minLengthRequired;
+  const showMessages =
+    !showLoading &&
+    ((inputValue.length === 0 && filteredItems.size === 0) ||
+      (inputValue.length > 0 && inputValue.length < minLengthRequired) ||
+      (inputValue.length > 0 && inputValue.length >= minLengthRequired && filteredItems.size === 0));
+  const showList = !showLoading && !showMessages && items.length > 0;
 
-  const findNextEnabledIndex = (currentIndex: number, items: ItemsWithIdentifier[], direction: string) => {
-    const len = items.length;
-    const directionValue = direction === 'ArrowDown' ? 1 : -1;
+  const virtualizer = useVirtualizer({
+    count: filteredItems.size,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 35,
+    measureElement: (element) => element.scrollHeight,
+  });
 
-    let nextIndex = currentIndex;
-    let tries = 0; //evitar bucles infinitos si todos los items estuvieran deshabilitados.
+  const virtualOptions = virtualizer.getVirtualItems();
 
-    do {
-      nextIndex = (nextIndex + directionValue + len) % len;
-      tries++;
-    } while (items[nextIndex]?.disabled && tries < len);
-    return nextIndex;
-  };
+  const scrollToIndex = useCallback(
+    (index: number) => {
+      virtualizer.scrollToIndex(index, { align: 'auto' });
+    },
+    [virtualizer],
+  );
 
   const handleArrowNavigation = useCallback(
     (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -60,34 +82,11 @@ export default function AutocompleteListVirtualize(props: AutocompleteListVirtua
       if (nextEnabledIndex !== currentIndex) {
         const nextItem = items[nextEnabledIndex];
         if (nextItem) onPreSelectItem(nextItem.identifier);
+        scrollToIndex(nextEnabledIndex);
       }
     },
-    [items, itemsIndexMap, onPreSelectItem, preSelectedValue],
+    [items, itemsIndexMap, onPreSelectItem, preSelectedValue, scrollToIndex],
   );
-
-  const rowVirtualizer = useVirtualizer<HTMLDivElement, HTMLDivElement>({
-    count: filteredItems.size,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 35,
-    overscan: 1,
-    paddingStart: 4,
-    paddingEnd: 4,
-    scrollPaddingStart: 4,
-    measureElement: (element) => {
-      return element.scrollHeight;
-    },
-  });
-
-  useListVirtualizeScroll({
-    filteredItems: items,
-    identifier,
-    isOpen,
-    preSelectedValue,
-    rowVirtualizer,
-    parentRef,
-  });
-
-  const rowItems = rowVirtualizer.getVirtualItems();
 
   useEffect(() => {
     const unregisterUp = registerKeydownOverride('ArrowUp', handleArrowNavigation);
@@ -99,45 +98,85 @@ export default function AutocompleteListVirtualize(props: AutocompleteListVirtua
     };
   }, [handleArrowNavigation, registerKeydownOverride]);
 
+  useEffect(() => {
+    if (selectedValue) {
+      const idx = items.findIndex((item) => item.identifier === selectedValue.identifier);
+      if (idx >= 0) {
+        virtualizer.scrollToIndex(idx, { align: 'center' });
+      }
+    }
+  }, [items, selectedValue, virtualizer]);
+
+  if (!isOpen) return null;
+
   return (
-    <div
+    <CommandList
       ref={parentRef}
-      className={cn(
-        'max-h-44 w-full overflow-auto rounded-none',
-        'suggestionScrollArea',
-        hidden && 'hidden',
-        className || null,
-      )}
-      onMouseDown={(e) => e.preventDefault()} // Evitar que el scroll capture el evento y tome el foco
-      tabIndex={-1} // Evita que el elemento reciba foco mediante tabulación
+      className={cn('my-1 max-h-44 w-full overflow-auto rounded-none', showLoading && 'min-h-20', className || null)}
     >
-      {/* {!hidden && <CommandItem value="-" className="hidden" />} */}
-      <CommandGroup
-        onMouseDown={(e) => e.preventDefault()}
-        className={cn('relative w-full px-0', classNameGroup)}
-        style={{
-          height: `${rowVirtualizer.getTotalSize()}px`,
-        }}
-      >
-        {rowItems.map((virtualRow) => {
-          const item = items[virtualRow.index];
-          //   console.log('Render row:', virtualRow.index, 'Total visible:', rowItems.length);
-          return (
-            <div
-              key={item.identifier}
-              ref={rowVirtualizer.measureElement}
-              data-index={virtualRow.index}
-              className={cn('absolute left-0 top-0 w-full')}
-              style={{
-                height: `${virtualRow.size}px`,
-                transform: `translateY(${virtualRow.start}px)`,
-              }}
-            >
-              <AutocompleteItem item={item} className={classNameItem} renderGlobal={children} />
-            </div>
-          );
-        })}
-      </CommandGroup>
-    </div>
+      {showLoading && (
+        <AutocompleteLoading showText={loadingConfig?.showText} text={loadingConfig?.text}>
+          {loadingConfig?.content}
+        </AutocompleteLoading>
+      )}
+      {showList && (
+        <CommandGroup className={cn('py-0', styles.suggestionScrollArea, classNameGroup || null)}>
+          <div className="relative w-full" style={{ height: `${virtualizer.getTotalSize()}px` }}>
+            {virtualOptions.map((virtualOption) => {
+              const item = items[virtualOption.index];
+
+              return (
+                <div
+                  key={item.identifier}
+                  ref={virtualizer.measureElement}
+                  data-index={virtualOption.index}
+                  className={cn('absolute left-0 top-0 w-full pb-0.5')}
+                  style={{ height: `${virtualOption.size}px`, transform: `translateY(${virtualOption.start}px)` }}
+                >
+                  <AutocompleteItem item={item} className={classNameItem} renderGlobal={children} />
+                </div>
+              );
+            })}
+          </div>
+        </CommandGroup>
+      )}
+      {showMessages && (
+        <AutocompleteMessages
+          initialText={messagesConfig?.initialText}
+          minLengthText={messagesConfig?.minLengthText}
+          noResultText={messagesConfig?.noResultText}
+        />
+      )}
+    </CommandList>
   );
 }
+
+export default memo(AutocompleteListVirtualize, (prev, next) => {
+  const prevLoading = prev.loadingConfig;
+  const nextLoading = next.loadingConfig;
+
+  const loadingChange =
+    prevLoading?.content !== nextLoading?.content ||
+    prevLoading?.showText !== nextLoading?.showText ||
+    prevLoading?.text !== nextLoading?.text;
+
+  if (loadingChange) return false;
+
+  const prevMessages = prev.messagesConfig;
+  const nextMessages = next.messagesConfig;
+
+  const messagesChange =
+    prevMessages?.className !== nextMessages?.className ||
+    prevMessages?.initialText !== nextMessages?.initialText ||
+    prevMessages?.minLengthText !== nextMessages?.minLengthText ||
+    prevMessages?.noResultText !== nextMessages?.noResultText;
+
+  if (messagesChange) return false;
+
+  return (
+    prev.children === next.children &&
+    prev.className === next.className &&
+    prev.classNameGroup === next.classNameGroup &&
+    prev.classNameItem === next.classNameItem
+  );
+});

@@ -1,7 +1,6 @@
 import { ForwardedRef, forwardRef, ReactNode, useEffect, useId, useMemo, useState } from 'react';
 
 import { cn } from '../../../lib/utils';
-import autocompleteStyle from './autocomplete.module.css';
 import {
   AutocompleteActionsContext,
   AutocompleteActionsContextProps,
@@ -11,11 +10,10 @@ import {
   AutocompleteLayoutContextProps,
 } from './context';
 import useManagedAutocomplete from './hooks/use-managed-autocomplete';
-import useTheme from './hooks/use-theme';
-import { AutocompleteStateChangePayload, AutocompleteTheme, IItem, Items } from './types/types';
+import { AutocompleteStateChangePayload, IItem, Items } from './types/types';
 
 interface BaseAutocompleteRootProps<Data> {
-  blurAction?: 'restore' | 'clear' | 'keep';
+  blurAction?: 'restore' | 'clear'; // | 'keep';
   children: ReactNode;
   className?: string;
   data?: Data;
@@ -26,8 +24,6 @@ interface BaseAutocompleteRootProps<Data> {
   minLengthRequired?: number;
   reset?: boolean;
   resetOnReselect?: boolean;
-  resetToInitialValue?: boolean;
-  theme?: AutocompleteTheme;
   value?: string;
   onStateChange?: (payload: AutocompleteStateChangePayload<Data>) => void;
   setReset?: React.Dispatch<React.SetStateAction<boolean>>;
@@ -63,8 +59,6 @@ export default forwardRef(function AutocompleteRoot<Data>(
     mode = 'async',
     reset,
     resetOnReselect,
-    resetToInitialValue,
-    theme,
     value,
     onStateChange,
     setReset,
@@ -72,11 +66,9 @@ export default forwardRef(function AutocompleteRoot<Data>(
   } = props;
 
   const id = useId();
-  const { themeCore, themeStyle } = useTheme({ style: autocompleteStyle, theme });
 
   const [leftAddonWidth, setLeftAddonWidth] = useState<string | number>(0);
   const [rightAddonWidth, setRightAddonWidth] = useState<string | number>(0);
-  const [isLoadingMounted, setIsLoadingMounted] = useState<boolean>(false);
 
   const resolvedVariantsProps = useMemo(() => {
     if (props.mode === 'async') {
@@ -110,7 +102,6 @@ export default forwardRef(function AutocompleteRoot<Data>(
     mode,
     reset,
     resetOnReselect,
-    resetToInitialValue,
     value,
     onStateChange,
     setReset,
@@ -152,9 +143,7 @@ export default forwardRef(function AutocompleteRoot<Data>(
       disabled,
       errors,
       id,
-      isLoadingMounted,
       minLengthRequired,
-      theme,
       onBlur,
       onChange,
       onFocus,
@@ -166,16 +155,13 @@ export default forwardRef(function AutocompleteRoot<Data>(
       onToogleLoading,
       onTooglePopover,
       registerKeydownOverride,
-      setIsLoadingMounted,
     }),
     [
       data,
       disabled,
       errors,
       id,
-      isLoadingMounted,
       minLengthRequired,
-      theme,
       onBlur,
       onChange,
       onFocus,
@@ -206,7 +192,7 @@ export default forwardRef(function AutocompleteRoot<Data>(
   }, [isInvalidMemo, subscribeIsInvalid]);
 
   return (
-    <div ref={ref} className={cn(themeCore, themeStyle, 'w-full space-y-1', className || null)}>
+    <div ref={ref} className={cn('w-full space-y-1', className || null)}>
       <div className="relative w-full">
         <AutocompleteLayoutContext.Provider value={constextLayoutValue}>
           <AutocompleteContext.Provider value={contextValue}>

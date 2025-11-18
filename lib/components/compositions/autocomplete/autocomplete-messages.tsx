@@ -6,57 +6,37 @@ import { useAutocompleteActionsContext, useAutocompleteContext } from './context
 
 interface AutocompleteMessagesProps {
   className?: string;
-  initialMessage?: string;
-  noResultMessage?: string;
-  minLengthMessage?: string;
-  loadingMessage?: string;
+  initialText?: string;
+  noResultText?: string;
+  minLengthText?: string;
 }
 
 export default forwardRef<HTMLDivElement, AutocompleteMessagesProps>(function AutocompleteMessages(props, ref) {
   const {
     className,
-    initialMessage = 'Escriba para mostrar sugerencias',
-    minLengthMessage = 'Escriba almenos {minLength} carácteres',
-    noResultMessage = 'No existen sugerencias',
-    loadingMessage = 'Fetching data…',
+    initialText = 'Escriba para mostrar sugerencias',
+    minLengthText = 'Escriba almenos {minLength} carácteres',
+    noResultText = 'No existen sugerencias',
   } = props;
 
-  const { isLoading, inputValue, filteredItems, isSearching } = useAutocompleteContext();
-  const { minLengthRequired, isLoadingMounted } = useAutocompleteActionsContext();
-  const valueLength = inputValue.length;
+  const { inputValue, filteredItems } = useAutocompleteContext();
+  const { minLengthRequired } = useAutocompleteActionsContext();
 
-  if ((isLoading || isSearching) && valueLength >= minLengthRequired && isLoadingMounted) {
-    return null;
-  }
+  let message: string = '????';
 
-  let message: string = '';
-  let isEmpty: boolean = false;
-
-  if ((isLoading || isSearching) && valueLength >= minLengthRequired && !isLoadingMounted) {
-    message = loadingMessage;
-  } else if (valueLength === 0 && filteredItems.size === 0) {
-    message = initialMessage;
-  } else if (valueLength < minLengthRequired) {
-    message = minLengthMessage.replace('{minLength}', String(minLengthRequired));
-  } else if (valueLength >= minLengthRequired && filteredItems.size === 0) {
-    message = noResultMessage;
-    isEmpty = true;
-  } else if (filteredItems.size === 0) {
-    message = noResultMessage;
-    isEmpty = true;
-  } else {
-    return null;
-  }
-
-  const Component = isEmpty ? CommandEmpty : 'div';
+  if (inputValue.length === 0 && filteredItems.size === 0) message = initialText;
+  if (inputValue.length > 0 && inputValue.length < minLengthRequired)
+    message = minLengthText.replace('{minLength}', String(minLengthRequired));
+  if (inputValue.length > 0 && inputValue.length >= minLengthRequired && filteredItems.size === 0)
+    message = noResultText;
 
   return (
-    <Component
+    <CommandEmpty
       ref={ref}
       className={cn('py-6 text-center text-sm', className || null)}
       onMouseDown={(e) => e.preventDefault()}
     >
       {message}
-    </Component>
+    </CommandEmpty>
   );
 });

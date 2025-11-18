@@ -36,8 +36,9 @@ export default function AutocompleteItem(props: AutocompleteItemProps) {
       onSelect={onSelectItem}
       disabled={disabled}
       className={cn(
-        'rounded-none text-sm text-foreground/80 data-[selected=true]:text-foreground data-[selected=true]:hover:text-foreground',
-        isSelected ? 'bg-ux-autocomplete-item-selected/65' : null,
+        'h-full rounded-sm text-sm',
+        'data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground',
+        isSelected ? 'bg-muted' : null,
         className || null,
       )}
     >

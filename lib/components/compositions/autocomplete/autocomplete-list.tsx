@@ -1,52 +1,111 @@
-import { useMemo, useRef } from 'react';
+import { memo, ReactNode, useMemo } from 'react';
 
 import { cn } from '../../../lib/utils';
-import { CommandGroup } from '../../ui/command';
+import { CommandGroup, CommandList } from '../../ui/command';
 import { ScrollArea } from '../../ui/scroll-area';
 import AutocompleteItem from './autocomplete-item';
+import AutocompleteLoading from './autocomplete-loading';
+import AutocompleteMessages from './autocomplete-messages';
+import styles from './autocomplete.module.css';
 import { useAutocompleteActionsContext, useAutocompleteContext } from './context';
-import useListScroll from './hooks/use-list-scroll';
 import { ItemsWithIdentifier } from './types/types';
 
 interface AutocompleteListProps {
   className?: string;
   classNameGroup?: string;
   classNameItem?: string;
+  loadingConfig?: {
+    showText?: boolean;
+    text?: string;
+    content?: ReactNode;
+  };
+  messagesConfig?: {
+    className?: string;
+    initialText?: string;
+    noResultText?: string;
+    minLengthText?: string;
+  };
   children?: (props: { item: ItemsWithIdentifier; isSelected: boolean }) => React.ReactNode;
 }
 
-export default function AutocompleteList(props: AutocompleteListProps) {
-  const { className, classNameGroup, classNameItem, children } = props;
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
+export function AutocompleteList(props: AutocompleteListProps) {
+  const { children, className, classNameGroup, classNameItem, loadingConfig, messagesConfig } = props;
 
-  const { filteredItems, isLoading, isOpen, selectedValue, preSelectedValue, inputValue, isSearching } =
-    useAutocompleteContext();
+  const { filteredItems, inputValue, isLoading, isSearching, isOpen } = useAutocompleteContext();
   const { minLengthRequired } = useAutocompleteActionsContext();
 
-  const itemsToRender = useMemo(() => Array.from(filteredItems.values()), [filteredItems]);
-  const identifier = selectedValue?.identifier;
-  const hidden = filteredItems.size === 0 || inputValue.length < minLengthRequired || isLoading || isSearching;
+  const items = useMemo(() => Array.from(filteredItems.values()), [filteredItems]);
 
-  useListScroll({ filteredItems, identifier, isOpen, preSelectedValue, scrollAreaRef });
+  if (!isOpen) return null;
+
+  const showLoading = (isLoading || isSearching) && inputValue.length >= minLengthRequired;
+  const showMessages =
+    !showLoading &&
+    ((inputValue.length === 0 && filteredItems.size === 0) ||
+      (inputValue.length > 0 && inputValue.length < minLengthRequired) ||
+      (inputValue.length > 0 && inputValue.length >= minLengthRequired && filteredItems.size === 0));
+  const showList = !showLoading && !showMessages && items.length > 0;
 
   return (
-    <ScrollArea
-      ref={scrollAreaRef}
-      type="always"
-      className={cn(
-        'flex max-h-48 flex-col rounded-none',
-        'suggestionScrollArea',
-        hidden && 'hidden',
-        className || null,
-      )}
-      onMouseDown={(e) => e.preventDefault()} // Evitar que el scroll capture el evento y tome el foco
-      tabIndex={-1} // Evita que el elemento reciba foco mediante tabulación
+    <CommandList
+      className={cn('max-h-44 w-full overflow-auto rounded-none', showLoading && 'min-h-20', className || null)}
     >
-      <CommandGroup onMouseDown={(e) => e.preventDefault()} className={cn('px-0', classNameGroup || null)}>
-        {itemsToRender.map((item) => (
-          <AutocompleteItem key={item.identifier} item={item} className={classNameItem} renderGlobal={children} />
-        ))}
-      </CommandGroup>
-    </ScrollArea>
+      {showLoading && (
+        <AutocompleteLoading showText={loadingConfig?.showText} text={loadingConfig?.text}>
+          {loadingConfig?.content}
+        </AutocompleteLoading>
+      )}
+      {showList && (
+        <CommandGroup className={cn(classNameGroup || null, 'CommandGroup')}>
+          <ScrollArea
+            type="always"
+            className={cn(styles.suggestionScrollArea, className || null)}
+            onMouseDown={(e) => e.preventDefault()} // Evitar que el scroll capture el evento y tome el foco
+            tabIndex={-1} // Evita que el elemento reciba foco mediante tabulación
+          >
+            {items.map((item) => (
+              <AutocompleteItem key={item.identifier} item={item} className={classNameItem} renderGlobal={children} />
+            ))}
+          </ScrollArea>
+        </CommandGroup>
+      )}
+      {showMessages && (
+        <AutocompleteMessages
+          initialText={messagesConfig?.initialText}
+          minLengthText={messagesConfig?.minLengthText}
+          noResultText={messagesConfig?.noResultText}
+        />
+      )}
+    </CommandList>
   );
 }
+
+export default memo(AutocompleteList, (prev, next) => {
+  const prevLoading = prev.loadingConfig;
+  const nextLoading = next.loadingConfig;
+
+  const loadingChange =
+    prevLoading?.content !== nextLoading?.content ||
+    prevLoading?.showText !== nextLoading?.showText ||
+    prevLoading?.text !== nextLoading?.text;
+
+  if (loadingChange) return false;
+
+  const prevMessages = prev.messagesConfig;
+  const nextMessages = next.messagesConfig;
+
+  const messagesChange =
+    prevMessages?.className !== nextMessages?.className ||
+    prevMessages?.initialText !== nextMessages?.initialText ||
+    prevMessages?.minLengthText !== nextMessages?.minLengthText ||
+    prevMessages?.noResultText !== nextMessages?.noResultText;
+
+  if (messagesChange) return false;
+
+  return (
+    prev.children === next.children &&
+    prev.className === next.className &&
+    prev.classNameGroup === next.classNameGroup &&
+    prev.classNameItem === next.classNameItem
+  );
+});

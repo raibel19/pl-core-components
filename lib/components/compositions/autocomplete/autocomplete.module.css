@@ -1,43 +1,46 @@
-:where(.autocomplete-core) {
-  /* NIVEL 3: Tokens Semánticos Personalizados (Específicos de tu UI) */
-  --ux-placeholder-foreground: var(--muted-foreground);
+.suggestionScrollArea {
+  /* --- Firefox --- */
+  /* Nota: Firefox usa propiedades diferentes y la personalización es más limitada */
+  /* Define el color del pulgar y la pista (thumb track) */
+  scrollbar-color: hsl(var(--muted-foreground) / 0.4) hsl(var(--muted));
+  /* Define el ancho del scrollbar */
+  scrollbar-width: thin;
 
-  --ux-autocomplete-header-background: var(--ux-white);
-  --ux-autocomplete-header-separator-background: var(--border);
-  --ux-autocomplete-item-selected-background: var(--accent);
-  --ux-skeleton-background: var(--input);
-  --ux-warning-foreground: var(--warning);
-  --ux-info-foreground: var(--info);
-}
+  /* --- WebKit (Chrome, Edge, Safari) --- */
+  /* 2. Estilos para el Scrollbar Completo (principalmente para el ancho en WebKit) */
+  :global(::-webkit-scrollbar) {
+    width: 0.65rem; /* Ancho de la barra de scroll */
+  }
 
-:where(.autocomplete-theme-default) {
-  /* NIVEL 1: Paleta de Colores Primitivos */
-  --ux-white: 0 0% 100%; /* #ffffff */
-  --ux-black: 0 0% 9%; /* #171717 */
-  --ux-red-500: 0 84.2% 60.2%; /* #E84D4D */
-  --ux-gray-200: 240 5.9% 90%; /* #E3E3E8 */
-  --ux-gray-300: 0 0% 83%; /* #D4D4D4 */
-  --ux-gray-600: 216 4% 46%; /* #71747A */
-  --ux-gray-950: 240 10% 3.9%; /* #09090B */
-  --ux-blue-600: 199 89% 48%; /* #0E95E7 */
-  --ux-orange-600: 38 92% 50%; /* #F79E08 */
+  /* 3. Estilos para la Pista del Scrollbar (el fondo) en WebKit */
+  :global(::-webkit-scrollbar-track) {
+    background-color: hsl(var(--muted));
+  }
 
-  /* #ACB0B9 */
-  /* --ux-gray-400: 220 9% 70%; */
-  /* #CDD7E5 */
-  /* --ux-slate-300: 214 32% 85%; */
-  /* #CFE8F0 */
-  /* --ux-blue-200: 196 62% 87%; */
+  /* 4. Estilos para el Pulgar del Scrollbar en WebKit */
+  :global(::-webkit-scrollbar-thumb) {
+    border-radius: 4px;
+    background-color: hsl(var(--muted-foreground) / 0.4);
+  }
 
-  /* NIVEL 2: Mapeo a Tokens Estándar de shadcn (Para Compatibilidad) */
-  --background: var(--ux-white);
-  --destructive: var(--ux-red-500);
-  --foreground: var(--ux-black);
-  --muted-foreground: var(--ux-gray-600);
-  --ring: var(--ux-gray-950);
-  --border: var(--ux-gray-200);
-  --input: var(--ux-gray-300);
-  --warning: var(--ux-orange-600);
-  --info: var(--ux-blue-600);
-  /* --accent: var(--ux-blue-200); */
+  /* 5. Estilos para el Pulgar del Scrollbar al Pasar el Ratón en WebKit */
+  :global(::-webkit-scrollbar-thumb:hover) {
+    background-color: hsl(var(--muted-foreground) / 0.8);
+  }
+
+  /* --- ScrollArea vertical --- */
+  :global([data-orientation="vertical"]:has(> div)) {
+    background-color: hsl(var(--muted));
+    padding-right: 2px;
+    padding-left: 1px;
+    width: 0.65rem;
+  }
+
+  :global([data-orientation="vertical"] > div) {
+    background-color: hsl(var(--muted-foreground) / 0.4);
+  }
+
+  :global([data-orientation="vertical"] > div:hover) {
+    background-color: hsl(var(--muted-foreground) / 0.8);
+  }
 }

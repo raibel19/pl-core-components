@@ -23,11 +23,12 @@ export default forwardRef<HTMLButtonElement, AutocompleteHeaderClearButtonProps>
         <button
           ref={ref}
           className={cn(
-            'pointer-events-auto text-muted-foreground/80 outline-offset-2 transition-colors hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring/70',
+            'pointer-events-auto text-muted-foreground transition-colors hover:text-foreground',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
           )}
           aria-label="clear input"
           onMouseDown={(e) => e.preventDefault}
-          onClick={onReset}
+          onClick={() => onReset({ closePopover: false })}
         >
           <Close className={classNameIcon} size={18} strokeWidth={2} aria-hidden="true" />
         </button>

@@ -13,6 +13,7 @@ export function autocompleteReduce(state: IAutocompleteState, action: Autocomple
         selectedValue: null,
         isOpen: action.payload.openPopover,
         preSelectedValue: '',
+        filteredItems: action.payload.clearItems ? new Map() : state.filteredItems,
       };
     }
     case 'SELECT_ITEM': {
@@ -30,16 +31,26 @@ export function autocompleteReduce(state: IAutocompleteState, action: Autocomple
       };
     }
     case 'CLEAR_SELECTION': {
-      if (state.inputValue === '' && state.selectedValue === null && !state.isOpen) return state;
+      if (
+        state.inputValue === '' &&
+        state.selectedValue === null &&
+        state.preSelectedValue === '' &&
+        state.isSearching === false &&
+        state.lastValidSelection === null &&
+        state.filteredItems.size === 0 &&
+        !state.isOpen
+      )
+        return state;
 
       return {
         ...state,
         inputValue: '',
         selectedValue: null,
-        isOpen: false,
+        // isOpen: false,
         preSelectedValue: '',
         isSearching: false,
         lastValidSelection: null,
+        filteredItems: new Map(),
       };
     }
     case 'OPEN_POPOVER': {
@@ -136,4 +147,18 @@ export function findMatchingItem(
 
 export function formatStr(value: string | undefined): string {
   return typeof value === 'string' ? value.trim().toLowerCase() : '';
+}
+
+export function findNextEnabledIndex(currentIndex: number, items: ItemsWithIdentifier[], direction: string) {
+  const len = items.length;
+  const directionValue = direction === 'ArrowDown' ? 1 : -1;
+
+  let nextIndex = currentIndex;
+  let tries = 0; //evitar bucles infinitos si todos los items estuvieran deshabilitados.
+
+  do {
+    nextIndex = (nextIndex + directionValue + len) % len;
+    tries++;
+  } while (items[nextIndex]?.disabled && tries < len);
+  return nextIndex;
 }
