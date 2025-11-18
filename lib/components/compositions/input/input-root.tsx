@@ -10,8 +10,6 @@ import {
   InputLayoutContextProps,
 } from './context';
 import useManagedInput from './hooks/use-managed-input';
-import useTheme from './hooks/use-theme';
-import inputStyle from './input.module.css';
 import {
   IFormatter,
   InputChangePayload,
@@ -82,7 +80,6 @@ export default forwardRef(function InputRoot<Data>(props: InputRootProps<Data>, 
   } = props;
 
   const id = useId();
-  const { themeCore, themeStyle } = useTheme({ style: inputStyle, theme });
 
   const [leftAddonWidth, setLeftAddonWidth] = useState<string | number>(0);
   const [rightAddonWidth, setRightAddonWidth] = useState<string | number>(0);
@@ -197,7 +194,7 @@ export default forwardRef(function InputRoot<Data>(props: InputRootProps<Data>, 
     <InputLayoutContext.Provider value={contextLayoutValue}>
       <InputContext.Provider value={contextValue}>
         <InputActionsContext.Provider value={contextActionsValue}>
-          <div ref={ref} className={cn(themeCore, themeStyle, 'w-full space-y-1', className || null)}>
+          <div ref={ref} className={cn('w-full space-y-1', className || null)}>
             {children}
           </div>
         </InputActionsContext.Provider>
