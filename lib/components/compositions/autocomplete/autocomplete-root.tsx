@@ -1,4 +1,14 @@
-import { ForwardedRef, forwardRef, ReactNode, useEffect, useId, useMemo, useState } from 'react';
+import {
+  ForwardedRef,
+  forwardRef,
+  ReactNode,
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import { cn } from '../../../lib/utils';
 import {
@@ -69,6 +79,8 @@ export default forwardRef(function AutocompleteRoot<Data>(
 
   const [leftAddonWidth, setLeftAddonWidth] = useState<string | number>(0);
   const [rightAddonWidth, setRightAddonWidth] = useState<string | number>(0);
+
+  const propsRef = useRef({ subscribeIsInvalid });
 
   const resolvedVariantsProps = useMemo(() => {
     if (props.mode === 'async') {
@@ -181,15 +193,19 @@ export default forwardRef(function AutocompleteRoot<Data>(
     [leftAddonWidth, rightAddonWidth],
   );
 
+  useLayoutEffect(() => {
+    propsRef.current = { subscribeIsInvalid };
+  }, [subscribeIsInvalid]);
+
   useEffect(() => {
     const id = setTimeout(() => {
-      subscribeIsInvalid?.(isInvalidMemo);
+      propsRef.current.subscribeIsInvalid?.(isInvalidMemo);
     }, 200);
 
     return () => {
       clearTimeout(id);
     };
-  }, [isInvalidMemo, subscribeIsInvalid]);
+  }, [isInvalidMemo]);
 
   return (
     <div ref={ref} className={cn('w-full space-y-1', className || null)}>

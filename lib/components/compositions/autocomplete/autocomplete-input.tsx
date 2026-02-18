@@ -5,15 +5,13 @@ import { cn } from '../../../lib/utils';
 import { Input } from '../../ui/input';
 import { PopoverTrigger } from '../../ui/popover';
 import { inputVariants } from './autocomplete-input.variants';
-import { useAutocompleteActionsContext, useAutocompleteContext, useAutocompleteLayopoutContext } from './context';
+import { useAutocompleteActionsContext, useAutocompleteContext, useAutocompleteLayoutContext } from './context';
 
-type AutocompleteInputForwardRef = {
-  element: HTMLInputElement | null;
-};
+type AutocompleteInputHandle = HTMLInputElement & {};
 
 type AutocompleteInputProps = ComponentPropsWithoutRef<'input'>;
 
-export default forwardRef<AutocompleteInputForwardRef, AutocompleteInputProps>(function AutocompleteInput(props, ref) {
+export default forwardRef<AutocompleteInputHandle, AutocompleteInputProps>(function AutocompleteInput(props, ref) {
   const {
     className,
     onKeyDown: onKeyDownNative,
@@ -25,14 +23,22 @@ export default forwardRef<AutocompleteInputForwardRef, AutocompleteInputProps>(f
 
   const { inputValue, isInvalid } = useAutocompleteContext();
   const { id, onChange, onkeyDown, onMouseDown, onFocus, onBlur } = useAutocompleteActionsContext();
-  const { leftAddonWidth, rightAddonWidth } = useAutocompleteLayopoutContext();
+  const { leftAddonWidth, rightAddonWidth } = useAutocompleteLayoutContext();
 
   const inputRef = useRef<HTMLInputElement>(null);
 
   useImperativeHandle(ref, () => {
-    return {
-      element: inputRef.current,
-    };
+    const node = inputRef.current;
+
+    if (!node) return null as unknown as AutocompleteInputHandle;
+
+    // const extendedNode = node as AutocompleteInputHandle;
+    // extendedNode.extraFn = () => {
+    //   console.log('Extra function called');
+    // };
+
+    // return extendedNode;
+    return node as AutocompleteInputHandle;
   });
 
   const handleOnkeyDown = useCallback(

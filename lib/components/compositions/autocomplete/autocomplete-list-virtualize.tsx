@@ -1,5 +1,5 @@
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { memo, ReactNode, useCallback, useEffect, useMemo, useRef } from 'react';
+import { memo, ReactNode, useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 
 import { cn } from '../../../lib/utils';
 import { CommandGroup, CommandList } from '../../ui/command';
@@ -32,13 +32,15 @@ interface AutocompleteListVirtualizeProps {
 function AutocompleteListVirtualize(props: AutocompleteListVirtualizeProps) {
   const { children, className, classNameGroup, classNameItem, loadingConfig, messagesConfig } = props;
 
-  const parentRef = useRef<HTMLDivElement | null>(null);
-
   const { filteredItems, selectedValue, preSelectedValue, inputValue, isLoading, isSearching, isOpen } =
     useAutocompleteContext();
   const { registerKeydownOverride, onPreSelectItem, minLengthRequired } = useAutocompleteActionsContext();
 
+  const parentRef = useRef<HTMLDivElement | null>(null);
+  const preSelectedValueRef = useRef(preSelectedValue);
+
   const items = useMemo(() => Array.from(filteredItems.values()), [filteredItems]);
+
   const itemsIndexMap = useMemo(() => {
     const map = new Map<string, number>();
     items.forEach((item, idx) => map.set(item.identifier, idx));
@@ -59,15 +61,13 @@ function AutocompleteListVirtualize(props: AutocompleteListVirtualizeProps) {
     estimateSize: () => 35,
     measureElement: (element) => element.scrollHeight,
   });
+  const virtualizerRef = useRef(virtualizer);
 
   const virtualOptions = virtualizer.getVirtualItems();
 
-  const scrollToIndex = useCallback(
-    (index: number) => {
-      virtualizer.scrollToIndex(index, { align: 'auto' });
-    },
-    [virtualizer],
-  );
+  const scrollToIndex = useCallback((index: number) => {
+    virtualizerRef.current.scrollToIndex(index, { align: 'auto' });
+  }, []);
 
   const handleArrowNavigation = useCallback(
     (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -75,7 +75,7 @@ function AutocompleteListVirtualize(props: AutocompleteListVirtualizeProps) {
 
       if (!items.length) return;
 
-      const currentIdentifier = preSelectedValue;
+      const currentIdentifier = preSelectedValueRef.current;
       const currentIndex = currentIdentifier ? (itemsIndexMap.get(currentIdentifier) ?? -1) : -1;
       const nextEnabledIndex = findNextEnabledIndex(currentIndex, items, event.key);
 
@@ -85,8 +85,13 @@ function AutocompleteListVirtualize(props: AutocompleteListVirtualizeProps) {
         scrollToIndex(nextEnabledIndex);
       }
     },
-    [items, itemsIndexMap, onPreSelectItem, preSelectedValue, scrollToIndex],
+    [items, itemsIndexMap, onPreSelectItem, scrollToIndex],
   );
+
+  useLayoutEffect(() => {
+    virtualizerRef.current = virtualizer;
+    preSelectedValueRef.current = preSelectedValue;
+  }, [preSelectedValue, virtualizer]);
 
   useEffect(() => {
     const unregisterUp = registerKeydownOverride('ArrowUp', handleArrowNavigation);
@@ -102,10 +107,10 @@ function AutocompleteListVirtualize(props: AutocompleteListVirtualizeProps) {
     if (selectedValue) {
       const idx = items.findIndex((item) => item.identifier === selectedValue.identifier);
       if (idx >= 0) {
-        virtualizer.scrollToIndex(idx, { align: 'center' });
+        virtualizerRef.current.scrollToIndex(idx, { align: 'center' });
       }
     }
-  }, [items, selectedValue, virtualizer]);
+  }, [items, selectedValue]);
 
   if (!isOpen) return null;
 

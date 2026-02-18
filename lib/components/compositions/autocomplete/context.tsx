@@ -63,10 +63,10 @@ export const useAutocompleteActionsContext = () => {
   return context;
 };
 
-export const useAutocompleteLayopoutContext = () => {
+export const useAutocompleteLayoutContext = () => {
   const context = useContext(AutocompleteLayoutContext);
   if (context === undefined) {
-    throw new Error('useAutocompleteLayopoutContext debe ser usado dentro de un Input.Root');
+    throw new Error('useAutocompleteLayoutContext debe ser usado dentro de un Input.Root');
   }
   return context;
 };

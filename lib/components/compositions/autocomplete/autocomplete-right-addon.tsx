@@ -2,7 +2,7 @@ import { forwardRef, ReactNode, useLayoutEffect, useRef } from 'react';
 
 import mergeRefs from '../../../lib/merge-refs';
 import { cn } from '../../../lib/utils';
-import { useAutocompleteLayopoutContext } from './context';
+import { useAutocompleteLayoutContext } from './context';
 import useResizeObserver from './hooks/use-resize-observer';
 
 interface AutocompleteRightAddonProps {
@@ -14,7 +14,7 @@ export default forwardRef<HTMLDivElement, AutocompleteRightAddonProps>(function 
   const { children, className } = props;
 
   const addonRef = useRef<HTMLDivElement>(null);
-  const { setRightAddonWidth } = useAutocompleteLayopoutContext();
+  const { setRightAddonWidth } = useAutocompleteLayoutContext();
 
   useResizeObserver(addonRef, (entry) => {
     const divWidth = entry.contentRect.width;
