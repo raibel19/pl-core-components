@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { numberFormatter } from 'ux-pl/utils/numbers';
 
+import useControllableState from '../../../hooks/use-controllable-state';
 import {
   ErrorKeys,
   IFormatter,
@@ -39,7 +40,6 @@ interface UseManagedInputProps<Data> {
 export default function useManagedInput<Data>(props: UseManagedInputProps<Data>) {
   const { defaultValue, reset, type, value: controlledValue, setReset } = props;
 
-  const isControlled = controlledValue !== undefined;
   const isTypeNumber = type === 'number';
 
   const [errors, dispatchError] = useReducer(errorReducer, new Map());
@@ -157,11 +157,36 @@ export default function useManagedInput<Data>(props: UseManagedInputProps<Data>)
     [formatValue, isTypeNumber, sanitizeNumber, validateBetween, validateLimits, validateMaxLength],
   );
 
-  const [uncontrolledValue, setUncontrolledValue] = useState<string>(() => {
-    const rawValue = isControlled ? controlledValue : (defaultValue ?? '');
-    return processRawValue(rawValue);
+  const onChangeControllableState = useCallback(
+    (newValue: string) => {
+      const { data, onValueChange } = propsRef.current;
+
+      if (onValueChange) {
+        const floatValue = parseFloat(newValue);
+        onValueChange({
+          data,
+          initialValue: initialValueRef.current,
+          value: newValue,
+          isComplete: !isPartialNumber(newValue),
+          floatValue: isNaN(floatValue) ? undefined : floatValue,
+        });
+      }
+    },
+    [isPartialNumber],
+  );
+
+  const defaultValueProcessed = useMemo(() => processRawValue(defaultValue ?? ''), [defaultValue, processRawValue]);
+
+  const {
+    value: currentValue,
+    setValue: setCurrentValue,
+    isControlled,
+  } = useControllableState<string>({
+    defaultValue: defaultValueProcessed,
+    onChange: onChangeControllableState,
+    value: controlledValue,
   });
-  const currentValue = isControlled ? controlledValue : uncontrolledValue;
+
   const initialValueRef = useRef<string>(currentValue);
   const displayValue = isFocused ? currentValue : valueFormatted || currentValue;
 
@@ -181,45 +206,25 @@ export default function useManagedInput<Data>(props: UseManagedInputProps<Data>)
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const { data, onValueChange } = propsRef.current;
-
       let newValue = e.target.value;
-      const previousInputValue = currentValue;
       newValue = processRawValue(newValue, false);
 
-      if (!isControlled) setUncontrolledValue(newValue);
-
-      if (onValueChange && newValue !== previousInputValue) {
-        const floatValue = parseFloat(newValue);
-        onValueChange({
-          data,
-          initialValue: initialValueRef.current,
-          value: newValue,
-          isComplete: !isPartialNumber(newValue),
-          floatValue: isNaN(floatValue) ? null : floatValue,
-        });
-      }
+      setCurrentValue(newValue);
     },
-    [currentValue, isControlled, isPartialNumber, processRawValue],
+    [processRawValue, setCurrentValue],
   );
 
   const handleReset = useCallback(
     (resetToInitialValue: boolean | undefined) => {
-      const { data, onValueChange } = propsRef.current;
-
       const initialValue = initialValueRef.current;
       const resetValue = resetToInitialValue === true ? initialValue : '';
 
       dispatchError({ type: 'CLEAR_ERRORS' });
 
-      if (!isControlled) {
-        setValueFormatted('');
-        setUncontrolledValue('');
-      }
-
-      onValueChange?.({ data, initialValue, value: resetValue, isComplete: false, floatValue: null });
+      setValueFormatted('');
+      setCurrentValue(resetValue);
     },
-    [isControlled],
+    [setCurrentValue],
   );
 
   const handleAddError = useCallback((key: string, value: string) => {
@@ -236,23 +241,12 @@ export default function useManagedInput<Data>(props: UseManagedInputProps<Data>)
   useEffect(() => {
     if (!isControlled) return;
 
-    const sanitizeValue = processRawValue(controlledValue);
+    const sanitizeValue = processRawValue(controlledValue ?? '');
 
     if (sanitizeValue !== controlledValue) {
-      const { data, onValueChange } = propsRef.current;
-
-      if (onValueChange) {
-        const floatValue = parseFloat(sanitizeValue);
-        onValueChange({
-          data,
-          initialValue: initialValueRef.current,
-          value: sanitizeValue,
-          isComplete: !isPartialNumber(sanitizeValue),
-          floatValue: isNaN(floatValue) ? null : floatValue,
-        });
-      }
+      setCurrentValue(sanitizeValue);
     }
-  }, [controlledValue, isControlled, isPartialNumber, processRawValue]);
+  }, [controlledValue, isControlled, processRawValue, setCurrentValue]);
 
   useEffect(() => {
     if (reset && setReset) {

@@ -6,12 +6,12 @@ import { useInputActionsContext, useInputContext } from './context';
 
 interface InputAddonCounterProps {
   className?: string;
-  classNameContainer?: string;
+  classNameInfinitySymbol?: string;
   show?: boolean;
 }
 
 export default forwardRef<HTMLDivElement, InputAddonCounterProps>(function InputAddonCounter(props, ref) {
-  const { className, classNameContainer, show = true } = props;
+  const { className, classNameInfinitySymbol, show = true } = props;
 
   const { value, isInvalid } = useInputContext();
   const { maxLength } = useInputActionsContext();
@@ -26,14 +26,14 @@ export default forwardRef<HTMLDivElement, InputAddonCounterProps>(function Input
       className={cn(
         'pointer-events-none inset-y-0 flex h-full items-center justify-center border-t border-transparent text-xs tabular-nums text-muted-foreground peer-disabled:opacity-50',
         isInvalid && 'text-destructive',
-        classNameContainer || null,
+        className || null,
       )}
       aria-live="polite"
       role="status"
     >
       {currentLnegth}/
       {maxLength === 0 || maxLength === undefined ? (
-        <InfinitySymbol size={18} strokeWidth={2} aria-hidden={true} className={className} />
+        <InfinitySymbol size={18} strokeWidth={2} aria-hidden={true} className={classNameInfinitySymbol} />
       ) : (
         maxLength
       )}

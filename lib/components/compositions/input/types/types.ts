@@ -9,7 +9,7 @@ interface BasePayload<Data> {
 export type TextPayload<Data> = BasePayload<Data>;
 
 export type NumericPayload<Data> = BasePayload<Data> & {
-  floatValue: number | null;
+  floatValue: number | undefined;
   isComplete: boolean;
 };
 
@@ -46,7 +46,7 @@ export interface IValidationBetween {
 export interface ISanitize {
   maxDecimalDigits?: number;
   allowNegative?: boolean;
-  decimalSeparator?: '.' | ',';
+  decimalSeparator: '.' | ',';
 }
 
 export type ErrorState = Map<string, string>;
