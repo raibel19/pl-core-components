@@ -3,7 +3,7 @@ import { forwardRef } from 'react';
 import { cn } from '../../../lib/utils';
 import { Separator } from '../../ui/separator';
 import { separatorVariants } from './autocomplete-addon-separator.variants';
-import { useAutocompleteActionsContext, useAutocompleteContext } from './context';
+import { useAutocompleteStableContext } from './context';
 
 interface AutocompleteAddonSeparatorProps {
   show?: boolean;
@@ -13,8 +13,7 @@ interface AutocompleteAddonSeparatorProps {
 export default forwardRef<HTMLDivElement, AutocompleteAddonSeparatorProps>(
   function AutocompleteAddonSeparator(props, ref) {
     const { show = true, className } = props;
-    const { isInvalid } = useAutocompleteContext();
-    const { disabled } = useAutocompleteActionsContext();
+    const { isInvalid, disabled } = useAutocompleteStableContext();
 
     if (!show) return null;
 

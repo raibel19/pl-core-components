@@ -6,7 +6,7 @@ import React from 'react';
 
 import { cn } from '../../../lib/utils';
 import Addon from '../../primitives/addon';
-import { useAutocompleteActionsContext, useAutocompleteContext } from './context';
+import { useAutocompleteStableContext, useAutocompleteVolatileContext } from './context';
 import { AutocompleteStateChangePayload } from './types/types';
 
 interface AutocompleteAddonButtonProps {
@@ -29,8 +29,8 @@ export default forwardRef<HTMLButtonElement, AutocompleteAddonButtonProps>(
   function AutocompleteAddonButton(props, ref) {
     const { classNameIcon, icon, onClick, show = true, text, ...moreProps } = props;
 
-    const { isInvalid, initialValueRef, inputValue, lastValidSelection } = useAutocompleteContext();
-    const { data, disabled } = useAutocompleteActionsContext();
+    const { isInvalid, initialValueRef, lastValidSelection, data, disabled } = useAutocompleteStableContext();
+    const { inputValue } = useAutocompleteVolatileContext();
 
     if (!show) return null;
 

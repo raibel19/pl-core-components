@@ -2,7 +2,7 @@ import { forwardRef } from 'react';
 
 import { cn } from '../../../lib/utils';
 import { CommandEmpty } from '../../ui/command';
-import { useAutocompleteActionsContext, useAutocompleteContext } from './context';
+import { useAutocompleteStableContext, useAutocompleteVolatileContext } from './context';
 
 interface AutocompleteMessagesProps {
   className?: string;
@@ -19,8 +19,8 @@ export default forwardRef<HTMLDivElement, AutocompleteMessagesProps>(function Au
     noResultText = 'No existen sugerencias',
   } = props;
 
-  const { inputValue, filteredItems } = useAutocompleteContext();
-  const { minLengthRequired } = useAutocompleteActionsContext();
+  const { inputValue, filteredItems } = useAutocompleteVolatileContext();
+  const { minLengthRequired } = useAutocompleteStableContext();
 
   let message: string = '????';
 

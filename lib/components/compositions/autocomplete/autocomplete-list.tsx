@@ -7,7 +7,7 @@ import AutocompleteItem from './autocomplete-item';
 import AutocompleteLoading from './autocomplete-loading';
 import AutocompleteMessages from './autocomplete-messages';
 import styles from './autocomplete.module.css';
-import { useAutocompleteActionsContext, useAutocompleteContext } from './context';
+import { useAutocompleteActionsContext, useAutocompleteStableContext, useAutocompleteVolatileContext } from './context';
 import { ItemsWithIdentifier } from './types/types';
 
 interface AutocompleteListProps {
@@ -28,11 +28,12 @@ interface AutocompleteListProps {
   children?: (props: { item: ItemsWithIdentifier; isSelected: boolean }) => React.ReactNode;
 }
 
-export function AutocompleteList(props: AutocompleteListProps) {
+function AutocompleteList(props: AutocompleteListProps) {
   const { children, className, classNameGroup, classNameItem, loadingConfig, messagesConfig } = props;
 
-  const { filteredItems, inputValue, isLoading, isSearching, isOpen } = useAutocompleteContext();
-  const { minLengthRequired } = useAutocompleteActionsContext();
+  const { isOpen, minLengthRequired, lastValidSelection } = useAutocompleteStableContext();
+  const { filteredItems, inputValue, isLoading, isSearching } = useAutocompleteVolatileContext();
+  const { onSelectItem } = useAutocompleteActionsContext();
 
   const items = useMemo(() => Array.from(filteredItems.values()), [filteredItems]);
 
@@ -63,9 +64,19 @@ export function AutocompleteList(props: AutocompleteListProps) {
             onMouseDown={(e) => e.preventDefault()} // Evitar que el scroll capture el evento y tome el foco
             tabIndex={-1} // Evita que el elemento reciba foco mediante tabulación
           >
-            {items.map((item) => (
-              <AutocompleteItem key={item.identifier} item={item} className={classNameItem} renderGlobal={children} />
-            ))}
+            {items.map((item) => {
+              const isSelected = lastValidSelection?.identifier === item.identifier;
+              return (
+                <AutocompleteItem
+                  key={item.identifier}
+                  item={item}
+                  className={classNameItem}
+                  isSelected={isSelected}
+                  onSelectItem={onSelectItem}
+                  renderGlobal={children}
+                />
+              );
+            })}
           </ScrollArea>
         </CommandGroup>
       )}
@@ -103,7 +114,6 @@ export default memo(AutocompleteList, (prev, next) => {
   if (messagesChange) return false;
 
   return (
-    prev.children === next.children &&
     prev.className === next.className &&
     prev.classNameGroup === next.classNameGroup &&
     prev.classNameItem === next.classNameItem

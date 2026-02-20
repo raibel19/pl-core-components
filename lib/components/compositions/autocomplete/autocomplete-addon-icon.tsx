@@ -6,7 +6,7 @@ import React from 'react';
 
 import { cn } from '../../../lib/utils';
 import Addon from '../../primitives/addon';
-import { useAutocompleteActionsContext, useAutocompleteContext } from './context';
+import { useAutocompleteStableContext } from './context';
 
 interface AutocompleteAddonIconProps {
   className?: string | undefined;
@@ -25,8 +25,7 @@ interface AutocompleteAddonIconProps {
 export default forwardRef<HTMLDivElement, AutocompleteAddonIconProps>(function AutocompleteAddonIcon(props, ref) {
   const { classNameIcon, icon, show = true, ...moreProps } = props;
 
-  const { isInvalid } = useAutocompleteContext();
-  const { disabled } = useAutocompleteActionsContext();
+  const { isInvalid, disabled } = useAutocompleteStableContext();
 
   if (!show) return null;
 

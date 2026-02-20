@@ -2,7 +2,7 @@ import { Close } from '@carbon/icons-react';
 import { forwardRef } from 'react';
 
 import { cn } from '../../../lib/utils';
-import { useAutocompleteActionsContext, useAutocompleteContext } from './context';
+import { useAutocompleteActionsContext, useAutocompleteStableContext, useAutocompleteVolatileContext } from './context';
 
 interface AutocompleteHeaderClearButtonProps {
   className?: string;
@@ -13,7 +13,8 @@ export default forwardRef<HTMLButtonElement, AutocompleteHeaderClearButtonProps>
   function AutocompleteHeaderClearButton(props, ref) {
     const { className, classNameIcon } = props;
 
-    const { lastValidSelection, isLoading } = useAutocompleteContext();
+    const { lastValidSelection } = useAutocompleteStableContext();
+    const { isLoading } = useAutocompleteVolatileContext();
     const { onReset } = useAutocompleteActionsContext();
 
     if (!lastValidSelection || isLoading) return null;
@@ -27,7 +28,7 @@ export default forwardRef<HTMLButtonElement, AutocompleteHeaderClearButtonProps>
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
           )}
           aria-label="clear input"
-          onMouseDown={(e) => e.preventDefault}
+          onMouseDown={(e) => e.preventDefault()}
           onClick={() => onReset({ closePopover: false })}
         >
           <Close className={classNameIcon} size={18} strokeWidth={2} aria-hidden="true" />

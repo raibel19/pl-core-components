@@ -1,22 +1,21 @@
+import { memo } from 'react';
+
 import { cn } from '../../../lib/utils';
 import { CommandItem } from '../../ui/command';
-import { useAutocompleteActionsContext, useAutocompleteContext } from './context';
+import { AutocompleteActionsContextProps } from './context';
 import { ItemsWithIdentifier } from './types/types';
 
 interface AutocompleteItemProps {
-  item: ItemsWithIdentifier;
   className?: string;
+  item: ItemsWithIdentifier;
+  isSelected: boolean;
+  onSelectItem: AutocompleteActionsContextProps['onSelectItem'];
   renderGlobal?: (props: { item: ItemsWithIdentifier; isSelected: boolean }) => React.ReactNode;
 }
 
-export default function AutocompleteItem(props: AutocompleteItemProps) {
-  const { item, className, renderGlobal } = props;
+export function AutocompleteItem(props: AutocompleteItemProps) {
+  const { item, className, renderGlobal, isSelected, onSelectItem } = props;
   const { identifier, label, disabled, render: itemRender } = item;
-
-  const { lastValidSelection } = useAutocompleteContext();
-  const { onSelectItem } = useAutocompleteActionsContext();
-
-  const isSelected = lastValidSelection?.identifier === identifier;
 
   const renderContent = () => {
     const baseContent = renderGlobal ? renderGlobal({ item, isSelected }) : <span>{label}</span>;
@@ -46,3 +45,17 @@ export default function AutocompleteItem(props: AutocompleteItemProps) {
     </CommandItem>
   );
 }
+
+export default memo(AutocompleteItem, (prev, next) => {
+  const prevItem = prev.item;
+  const nextItem = next.item;
+
+  const itemChange =
+    prevItem.label !== nextItem.label ||
+    prevItem.disabled !== nextItem.disabled ||
+    prevItem.identifier !== nextItem.identifier;
+
+  if (itemChange) return false;
+
+  return prev.className !== next.className || prev.isSelected !== next.isSelected;
+});

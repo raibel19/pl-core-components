@@ -1,5 +1,7 @@
+export type Actions = 'INPUT_CHANGE' | 'ITEM_SELECTED' | 'RESET';
+
 export type AutocompleteStateChangePayload<Data = unknown> = {
-  type: 'INPUT_CHANGE' | 'ITEM_SELECTED' | 'RESET';
+  type: Actions;
   data: Data | undefined;
   initialValue: string;
   inputValue: string;

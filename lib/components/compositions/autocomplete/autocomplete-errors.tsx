@@ -2,7 +2,7 @@ import { forwardRef, useMemo } from 'react';
 
 import { cn } from '../../../lib/utils';
 import FieldMessage from '../../primitives/field-message';
-import { useAutocompleteActionsContext, useAutocompleteContext } from './context';
+import { useAutocompleteStableContext } from './context';
 
 interface AutocompleteErrorsProps extends React.HTMLAttributes<HTMLUListElement> {
   className?: string;
@@ -11,8 +11,7 @@ interface AutocompleteErrorsProps extends React.HTMLAttributes<HTMLUListElement>
 
 export default forwardRef<HTMLUListElement, AutocompleteErrorsProps>(function AutocompleteErrors(props, ref) {
   const { className, customMessageError, ...moreProps } = props;
-  const { isInvalid } = useAutocompleteContext();
-  const { errors: internalErrors } = useAutocompleteActionsContext();
+  const { isInvalid, errors: internalErrors } = useAutocompleteStableContext();
 
   const combineErrors = useMemo(() => {
     const externalErrors = customMessageError ? [customMessageError] : [];

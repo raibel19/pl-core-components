@@ -1,6 +1,6 @@
 import { Command, CommandList } from '../../ui/command';
 import { Popover } from '../../ui/popover';
-import { useAutocompleteActionsContext, useAutocompleteContext } from './context';
+import { useAutocompleteActionsContext, useAutocompleteStableContext, useAutocompleteVolatileContext } from './context';
 
 interface AutocompleteGroupProps {
   children: React.ReactNode;
@@ -9,7 +9,8 @@ interface AutocompleteGroupProps {
 export default function AutocompleteGroup(props: AutocompleteGroupProps) {
   const { children } = props;
 
-  const { isOpen, preSelectedValue } = useAutocompleteContext();
+  const { isOpen } = useAutocompleteStableContext();
+  const { preSelectedValue } = useAutocompleteVolatileContext();
   const { onTooglePopover, onPreSelectItem } = useAutocompleteActionsContext();
 
   return (

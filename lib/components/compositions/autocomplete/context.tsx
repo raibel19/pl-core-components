@@ -2,25 +2,28 @@ import { createContext, useContext } from 'react';
 
 import { ItemsWithIdentifier } from './types/types';
 
-export interface AutocompleteContextProps {
+export interface AutocompleteVolatileContextProps {
   filteredItems: Map<string, ItemsWithIdentifier>;
-  initialValueRef: React.MutableRefObject<string>;
   inputValue: string;
-  isInvalid?: boolean;
   isLoading: boolean;
-  isOpen: boolean;
   isSearching: boolean;
-  lastValidSelection: ItemsWithIdentifier | null;
   preSelectedValue: string | undefined;
+}
+
+export interface AutocompleteStableContextProps<Data = unknown> {
+  data?: Data;
+  disabled?: boolean;
+  errors: string[];
+  id: string;
+  initialValueRef: React.MutableRefObject<string>;
+  isInvalid?: boolean;
+  isOpen: boolean;
+  lastValidSelection: ItemsWithIdentifier | null;
+  minLengthRequired: number;
   selectedValue: ItemsWithIdentifier | null;
 }
 
-export interface AutocompleteActionsContextProps<Data = unknown> {
-  data?: Data;
-  disabled?: boolean;
-  id: string;
-  minLengthRequired: number;
-  errors: string[];
+export interface AutocompleteActionsContextProps {
   onBlur: (event: React.FocusEvent<HTMLInputElement, Element>) => void;
   onChange: (value: string) => void;
   onFocus: () => void;
@@ -41,32 +44,45 @@ export interface AutocompleteLayoutContextProps {
   setRightAddonWidth: (width: string | number) => void;
 }
 
-export const AutocompleteContext = createContext<AutocompleteContextProps | undefined>(undefined);
-export const AutocompleteActionsContext = createContext<AutocompleteActionsContextProps<unknown> | undefined>(
-  undefined,
-);
+export const AutocompleteVolatileContext = createContext<AutocompleteVolatileContextProps | undefined>(undefined);
+export const AutocompleteStableContext = createContext<AutocompleteStableContextProps<unknown> | undefined>(undefined);
+export const AutocompleteActionsContext = createContext<AutocompleteActionsContextProps | undefined>(undefined);
 export const AutocompleteLayoutContext = createContext<AutocompleteLayoutContextProps | undefined>(undefined);
 
-export const useAutocompleteContext = () => {
-  const context = useContext(AutocompleteContext);
+export function useAutocompleteVolatileContext() {
+  const context = useContext(AutocompleteVolatileContext);
   if (context === undefined) {
-    throw new Error('useAutocompleteContext debe ser usado dentro de un Input.Group');
+    throw new Error('useAutocompleteVolatileContext debe ser usado dentro de un componente <Autocomplete>');
   }
   return context;
-};
+}
 
-export const useAutocompleteActionsContext = () => {
+export function useAutocompleteStableContext<Data = unknown>() {
+  const context = useContext(AutocompleteStableContext) as AutocompleteStableContextProps<Data> | undefined;
+
+  if (context === undefined) {
+    throw new Error('useAutocompleteStableContext debe ser usado dentro de un componente <Autocomplete>');
+  }
+
+  return context;
+}
+
+export function useAutocompleteActionsContext() {
   const context = useContext(AutocompleteActionsContext);
-  if (context === undefined) {
-    throw new Error('useAutocompleteActionsContext debe ser usado dentro de un Input.Group');
-  }
-  return context;
-};
 
-export const useAutocompleteLayoutContext = () => {
-  const context = useContext(AutocompleteLayoutContext);
   if (context === undefined) {
-    throw new Error('useAutocompleteLayoutContext debe ser usado dentro de un Input.Root');
+    throw new Error('useAutocompleteActionsContext debe ser usado dentro de un componente <Autocomplete>');
   }
+
   return context;
-};
+}
+
+export function useAutocompleteLayoutContext() {
+  const context = useContext(AutocompleteLayoutContext);
+
+  if (context === undefined) {
+    throw new Error('useAutocompleteLayoutContext debe ser usado dentro de un componente <Autocomplete>');
+  }
+
+  return context;
+}

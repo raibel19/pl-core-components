@@ -7,7 +7,7 @@ import AutocompleteItem from './autocomplete-item';
 import AutocompleteLoading from './autocomplete-loading';
 import AutocompleteMessages from './autocomplete-messages';
 import styles from './autocomplete.module.css';
-import { useAutocompleteActionsContext, useAutocompleteContext } from './context';
+import { useAutocompleteActionsContext, useAutocompleteStableContext, useAutocompleteVolatileContext } from './context';
 import { ItemsWithIdentifier } from './types/types';
 import { findNextEnabledIndex } from './utils/utils';
 
@@ -32,9 +32,9 @@ interface AutocompleteListVirtualizeProps {
 function AutocompleteListVirtualize(props: AutocompleteListVirtualizeProps) {
   const { children, className, classNameGroup, classNameItem, loadingConfig, messagesConfig } = props;
 
-  const { filteredItems, selectedValue, preSelectedValue, inputValue, isLoading, isSearching, isOpen } =
-    useAutocompleteContext();
-  const { registerKeydownOverride, onPreSelectItem, minLengthRequired } = useAutocompleteActionsContext();
+  const { selectedValue, isOpen, minLengthRequired, lastValidSelection } = useAutocompleteStableContext();
+  const { filteredItems, preSelectedValue, inputValue, isLoading, isSearching } = useAutocompleteVolatileContext();
+  const { registerKeydownOverride, onPreSelectItem, onSelectItem } = useAutocompleteActionsContext();
 
   const parentRef = useRef<HTMLDivElement | null>(null);
   const preSelectedValueRef = useRef(preSelectedValue);
@@ -129,6 +129,7 @@ function AutocompleteListVirtualize(props: AutocompleteListVirtualizeProps) {
           <div className="relative w-full" style={{ height: `${virtualizer.getTotalSize()}px` }}>
             {virtualOptions.map((virtualOption) => {
               const item = items[virtualOption.index];
+              const isSelected = lastValidSelection?.identifier === item.identifier;
 
               return (
                 <div
@@ -138,7 +139,13 @@ function AutocompleteListVirtualize(props: AutocompleteListVirtualizeProps) {
                   className={cn('absolute left-0 top-0 w-full pb-0.5')}
                   style={{ height: `${virtualOption.size}px`, transform: `translateY(${virtualOption.start}px)` }}
                 >
-                  <AutocompleteItem item={item} className={classNameItem} renderGlobal={children} />
+                  <AutocompleteItem
+                    item={item}
+                    className={classNameItem}
+                    isSelected={isSelected}
+                    onSelectItem={onSelectItem}
+                    renderGlobal={children}
+                  />
                 </div>
               );
             })}
@@ -179,7 +186,6 @@ export default memo(AutocompleteListVirtualize, (prev, next) => {
   if (messagesChange) return false;
 
   return (
-    prev.children === next.children &&
     prev.className === next.className &&
     prev.classNameGroup === next.classNameGroup &&
     prev.classNameItem === next.classNameItem

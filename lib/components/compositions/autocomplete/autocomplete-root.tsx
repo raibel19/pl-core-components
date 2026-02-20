@@ -14,10 +14,12 @@ import { cn } from '../../../lib/utils';
 import {
   AutocompleteActionsContext,
   AutocompleteActionsContextProps,
-  AutocompleteContext,
-  AutocompleteContextProps,
   AutocompleteLayoutContext,
   AutocompleteLayoutContextProps,
+  AutocompleteStableContext,
+  AutocompleteStableContextProps,
+  AutocompleteVolatileContext,
+  AutocompleteVolatileContextProps,
 } from './context';
 import useManagedAutocomplete from './hooks/use-managed-autocomplete';
 import { AutocompleteStateChangePayload, IItem, Items } from './types/types';
@@ -27,20 +29,33 @@ interface BaseAutocompleteRootProps<Data> {
   children: ReactNode;
   className?: string;
   data?: Data;
-  defaultValue?: string;
   disabled?: boolean;
   isInvalid?: boolean;
   items: Items;
   minLengthRequired?: number;
   reset?: boolean;
   resetOnReselect?: boolean;
-  value?: string;
   onStateChange?: (payload: AutocompleteStateChangePayload<Data>) => void;
   setReset?: React.Dispatch<React.SetStateAction<boolean>>;
   subscribeIsInvalid?: (isInvalid: boolean) => void;
 }
 
+type ControlledState =
+  | {
+      value: string;
+      defaultValue?: never;
+    }
+  | {
+      value?: never;
+      defaultValue: string;
+    }
+  | {
+      value?: never;
+      defaultValue?: never;
+    };
+
 type AutocompleteRootProps<Data> = BaseAutocompleteRootProps<Data> &
+  ControlledState &
   (
     | {
         mode: 'async';
@@ -122,40 +137,46 @@ export default forwardRef(function AutocompleteRoot<Data>(
 
   const isInvalidMemo = useMemo(() => isInvalid || Boolean(errors.length), [errors.length, isInvalid]);
 
-  const contextValue = useMemo<AutocompleteContextProps>(
+  const contextVolatileValue = useMemo<AutocompleteVolatileContextProps>(
     () => ({
       filteredItems: state.filteredItems,
-      initialValueRef,
       inputValue: state.inputValue,
-      isInvalid: isInvalidMemo,
       isLoading: state.isLoading,
-      isOpen: state.isOpen,
       isSearching: state.isSearching,
-      lastValidSelection: state.lastValidSelection,
       preSelectedValue: state.preSelectedValue,
-      selectedValue: state.selectedValue,
     }),
-    [
-      initialValueRef,
-      isInvalidMemo,
-      state.filteredItems,
-      state.inputValue,
-      state.isLoading,
-      state.isOpen,
-      state.isSearching,
-      state.lastValidSelection,
-      state.preSelectedValue,
-      state.selectedValue,
-    ],
+    [state.filteredItems, state.inputValue, state.isLoading, state.isSearching, state.preSelectedValue],
   );
 
-  const contextActionsValue = useMemo<AutocompleteActionsContextProps<Data>>(
+  const contextStableValue = useMemo<AutocompleteStableContextProps<Data>>(
     () => ({
+      errors,
+      id,
+      initialValueRef,
+      isOpen: state.isOpen,
+      lastValidSelection: state.lastValidSelection,
+      minLengthRequired,
+      selectedValue: state.selectedValue,
+      data,
+      disabled,
+      isInvalid: isInvalidMemo,
+    }),
+    [
       data,
       disabled,
       errors,
       id,
+      initialValueRef,
+      isInvalidMemo,
       minLengthRequired,
+      state.isOpen,
+      state.lastValidSelection,
+      state.selectedValue,
+    ],
+  );
+
+  const contextActionsValue = useMemo<AutocompleteActionsContextProps>(
+    () => ({
       onBlur,
       onChange,
       onFocus,
@@ -169,11 +190,6 @@ export default forwardRef(function AutocompleteRoot<Data>(
       registerKeydownOverride,
     }),
     [
-      data,
-      disabled,
-      errors,
-      id,
-      minLengthRequired,
       onBlur,
       onChange,
       onFocus,
@@ -211,11 +227,13 @@ export default forwardRef(function AutocompleteRoot<Data>(
     <div ref={ref} className={cn('w-full space-y-1', className || null)}>
       <div className="relative w-full">
         <AutocompleteLayoutContext.Provider value={constextLayoutValue}>
-          <AutocompleteContext.Provider value={contextValue}>
-            <AutocompleteActionsContext.Provider value={contextActionsValue}>
-              {children}
-            </AutocompleteActionsContext.Provider>
-          </AutocompleteContext.Provider>
+          <AutocompleteStableContext.Provider value={contextStableValue}>
+            <AutocompleteVolatileContext.Provider value={contextVolatileValue}>
+              <AutocompleteActionsContext.Provider value={contextActionsValue}>
+                {children}
+              </AutocompleteActionsContext.Provider>
+            </AutocompleteVolatileContext.Provider>
+          </AutocompleteStableContext.Provider>
         </AutocompleteLayoutContext.Provider>
       </div>
     </div>

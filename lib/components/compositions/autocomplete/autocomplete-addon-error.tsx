@@ -7,7 +7,7 @@ import React from 'react';
 import { cn } from '../../../lib/utils';
 import Addon from '../../primitives/addon';
 import AutocompleteAddonSeparator from './autocomplete-addon-separator';
-import { useAutocompleteActionsContext, useAutocompleteContext } from './context';
+import { useAutocompleteStableContext } from './context';
 
 interface AutocompleteAddonErrorProps {
   className?: string | undefined;
@@ -28,8 +28,7 @@ interface AutocompleteAddonErrorProps {
 export default forwardRef<HTMLDivElement, AutocompleteAddonErrorProps>(function InputAddonError(props, ref) {
   const { classNameIcon, icon, show = true, showAddonSeparatorLeft, showAddonSeparatorRight, ...moreProps } = props;
 
-  const { isInvalid } = useAutocompleteContext();
-  const { disabled } = useAutocompleteActionsContext();
+  const { isInvalid, disabled } = useAutocompleteStableContext();
 
   if (!show || !isInvalid) return null;
 

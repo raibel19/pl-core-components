@@ -3,7 +3,7 @@ import { TooltipProps, TooltipProviderProps } from '@radix-ui/react-tooltip';
 import { forwardRef, ReactNode } from 'react';
 
 import Addon from '../../primitives/addon';
-import { useAutocompleteActionsContext, useAutocompleteContext } from './context';
+import { useAutocompleteStableContext } from './context';
 
 interface AutocompleteAddonTextProps {
   className?: string | undefined;
@@ -21,8 +21,7 @@ interface AutocompleteAddonTextProps {
 export default forwardRef<HTMLSpanElement, AutocompleteAddonTextProps>(function AutocompleteAddonText(props, ref) {
   const { show = true, text, ...moreProps } = props;
 
-  const { isInvalid } = useAutocompleteContext();
-  const { disabled } = useAutocompleteActionsContext();
+  const { isInvalid, disabled } = useAutocompleteStableContext();
 
   if (!show) return null;
 

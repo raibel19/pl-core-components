@@ -2,7 +2,7 @@ import { forwardRef } from 'react';
 
 import { cn } from '../../../lib/utils';
 import Label from '../../primitives/label';
-import { useAutocompleteActionsContext, useAutocompleteContext } from './context';
+import { useAutocompleteStableContext } from './context';
 
 interface InputLabelProps {
   className?: string | undefined;
@@ -26,8 +26,7 @@ export default forwardRef<HTMLLabelElement, InputLabelProps>(function Autocomple
     text,
     textRequired,
   } = props;
-  const { isInvalid } = useAutocompleteContext();
-  const { id, disabled } = useAutocompleteActionsContext();
+  const { isInvalid, id, disabled } = useAutocompleteStableContext();
 
   if (!showText && !textRequired && !isRequired) return null;
 
