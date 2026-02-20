@@ -26,14 +26,12 @@ interface BaseInputRootProps<Data> {
   children: ReactNode;
   className?: string;
   data?: Data;
-  // defaultValue?: string;
   disabled?: boolean;
   isInvalid?: boolean;
   reset?: boolean;
   resetToInitialValue?: boolean;
   theme?: InputTheme;
   type: InputType;
-  // value?: string;
   setReset?: React.Dispatch<React.SetStateAction<boolean>>;
   subscribeIsInvalid?: (isInvalid: boolean) => void;
 }
