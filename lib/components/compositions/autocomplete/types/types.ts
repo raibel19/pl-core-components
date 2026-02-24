@@ -41,7 +41,7 @@ export interface IAutocompleteState {
 
 export type AutocompleteAction =
   | { type: 'SET_INPUT_VALUE'; payload: { value: string; openPopover: boolean; clearItems?: boolean } }
-  | { type: 'SELECT_ITEM'; payload: ItemsWithIdentifier }
+  | { type: 'SELECT_ITEM'; payload: { items: ItemsWithIdentifier; openPopover: boolean } }
   | { type: 'CLEAR_SELECTION' }
   | { type: 'OPEN_POPOVER' }
   | { type: 'CLOSE_POPOVER' }

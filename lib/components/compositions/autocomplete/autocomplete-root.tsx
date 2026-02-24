@@ -63,6 +63,7 @@ type AutocompleteRootProps<Data> = BaseAutocompleteRootProps<Data> &
       }
     | {
         mode: 'static';
+        caseSensitive?: boolean;
         filterItems?: (items: IItem[], inputValue: string) => IItem[];
       }
   );
@@ -90,19 +91,16 @@ export default forwardRef(function AutocompleteRoot<Data>(
     subscribeIsInvalid,
   } = props;
 
+  const loading = props.mode === 'async' ? (props.loading ?? false) : false;
+  const filterItems = props.mode === 'static' ? props.filterItems : undefined;
+  const caseSensitive = props.mode === 'static' ? props.caseSensitive : undefined;
+
   const id = useId();
 
   const [leftAddonWidth, setLeftAddonWidth] = useState<string | number>(0);
   const [rightAddonWidth, setRightAddonWidth] = useState<string | number>(0);
 
   const propsRef = useRef({ subscribeIsInvalid });
-
-  const resolvedVariantsProps = useMemo(() => {
-    if (props.mode === 'async') {
-      return { filterItems: undefined, loading: props.loading ?? false };
-    }
-    return { filterItems: props.filterItems, loading: false };
-  }, [props]);
 
   const {
     errors,
@@ -121,18 +119,19 @@ export default forwardRef(function AutocompleteRoot<Data>(
     registerKeydownOverride,
   } = useManagedAutocomplete<Data>({
     blurAction,
+    caseSensitive,
     data,
     defaultValue,
     items,
-    loading: resolvedVariantsProps.loading,
+    loading,
     minLengthRequired,
     mode,
     reset,
     resetOnReselect,
     value,
+    filterItems,
     onStateChange,
     setReset,
-    filterItems: resolvedVariantsProps.filterItems,
   });
 
   const isInvalidMemo = useMemo(() => isInvalid || Boolean(errors.length), [errors.length, isInvalid]);
@@ -150,16 +149,16 @@ export default forwardRef(function AutocompleteRoot<Data>(
 
   const contextStableValue = useMemo<AutocompleteStableContextProps<Data>>(
     () => ({
+      data,
+      disabled,
       errors,
       id,
       initialValueRef,
+      isInvalid: isInvalidMemo,
       isOpen: state.isOpen,
       lastValidSelection: state.lastValidSelection,
       minLengthRequired,
       selectedValue: state.selectedValue,
-      data,
-      disabled,
-      isInvalid: isInvalidMemo,
     }),
     [
       data,

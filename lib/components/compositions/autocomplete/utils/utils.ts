@@ -5,29 +5,33 @@ import { AutocompleteAction, ErrorAction, ErrorState, IAutocompleteState, ItemsW
 export function autocompleteReduce(state: IAutocompleteState, action: AutocompleteAction): IAutocompleteState {
   switch (action.type) {
     case 'SET_INPUT_VALUE': {
-      if (action.payload.value === state.inputValue) return state;
+      const { openPopover, value, clearItems } = action.payload;
+
+      if (value === state.inputValue) return state;
 
       return {
         ...state,
-        inputValue: action.payload.value,
+        inputValue: value,
         selectedValue: null,
-        isOpen: action.payload.openPopover,
+        isOpen: openPopover,
         preSelectedValue: '',
-        filteredItems: action.payload.clearItems ? new Map() : state.filteredItems,
+        filteredItems: clearItems ? new Map() : state.filteredItems,
       };
     }
     case 'SELECT_ITEM': {
-      if (state.selectedValue && equals(action.payload, state.selectedValue)) {
+      const { items, openPopover } = action.payload;
+
+      if (state.selectedValue && equals(items, state.selectedValue)) {
         return state;
       }
 
       return {
         ...state,
-        inputValue: action.payload.label,
-        selectedValue: action.payload,
-        isOpen: false,
-        preSelectedValue: action.payload.identifier,
-        lastValidSelection: action.payload,
+        inputValue: items.label,
+        selectedValue: items,
+        isOpen: openPopover,
+        preSelectedValue: items.identifier,
+        lastValidSelection: items,
       };
     }
     case 'CLEAR_SELECTION': {
@@ -136,17 +140,22 @@ export function errorReducer(state: ErrorState, action: ErrorAction): ErrorState
   }
 }
 
+export function formatStr(value: string | undefined | null, caseSensitive: boolean = false): string {
+  if (typeof value !== 'string') return '';
+  const trimmed = value.trim();
+  return caseSensitive ? trimmed : trimmed.toLowerCase();
+}
+
 export function findMatchingItem(
   value: string,
   items: Map<string, ItemsWithIdentifier>,
+  caseSensitive: boolean = false,
 ): ItemsWithIdentifier | undefined {
   if (!value || !items.size) return undefined;
 
-  return Array.from(items.values()).find((item) => item.label.trim().toLowerCase() === value.trim().toLowerCase());
-}
-
-export function formatStr(value: string | undefined): string {
-  return typeof value === 'string' ? value.trim().toLowerCase() : '';
+  return Array.from(items.values()).find(
+    (item) => formatStr(item.label, caseSensitive) === formatStr(value, caseSensitive),
+  );
 }
 
 export function findNextEnabledIndex(currentIndex: number, items: ItemsWithIdentifier[], direction: string) {

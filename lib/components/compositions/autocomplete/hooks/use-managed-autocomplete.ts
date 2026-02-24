@@ -11,9 +11,11 @@ import {
   Actions,
 } from '../types/types';
 import { autocompleteReduce, errorReducer, findMatchingItem, formatStr } from '../utils/utils';
+import useLoading from './use-loading';
 
 interface UseManagedAutocompleteProps<Data> {
   blurAction: 'restore' | 'clear' | 'keep';
+  caseSensitive?: boolean;
   data?: Data;
   defaultValue?: string;
   items: { data: IItem[]; searchValue: string | null };
@@ -29,7 +31,7 @@ interface UseManagedAutocompleteProps<Data> {
 }
 
 export default function useManagedAutocomplete<Data>(props: UseManagedAutocompleteProps<Data>) {
-  const { defaultValue, items: itemsProps, reset, value: controlledValue, loading, setReset } = props;
+  const { defaultValue, items: itemsProps, reset, value: controlledValue, loading: loadingRaw, setReset } = props;
 
   const propsRef = useRef(props);
   const itemsCache = useRef<Map<string, string>>(new Map());
@@ -39,6 +41,13 @@ export default function useManagedAutocomplete<Data>(props: UseManagedAutocomple
   const lastUserInputValueRef = useRef<string | null>(null);
   const initialValueRef = useRef<string>(controlledValue ?? defaultValue ?? '');
   const lastRequestRef = useRef<string>('');
+
+  const loading = useLoading({ delay: 150, isLoading: loadingRaw });
+
+  const format = useCallback(
+    (value: string | undefined | null) => formatStr(value, propsRef.current.caseSensitive),
+    [],
+  );
 
   const processRawItems = useCallback<(source: IItem[]) => Map<string, ItemsWithIdentifier>>((source) => {
     const processedItems = source.map<[string, ItemsWithIdentifier]>((item) => {
@@ -111,7 +120,7 @@ export default function useManagedAutocomplete<Data>(props: UseManagedAutocomple
     { ...props, value: currentValue },
     (): IAutocompleteState => {
       const initialItems = processRawItems(itemsProps.data);
-      const matchingItems = findMatchingItem(currentValue, initialItems);
+      const matchingItems = findMatchingItem(currentValue, initialItems, propsRef.current.caseSensitive);
 
       return {
         inputValue: currentValue,
@@ -162,7 +171,7 @@ export default function useManagedAutocomplete<Data>(props: UseManagedAutocomple
       dispatchError({ type: 'CLEAR_ERRORS' });
       dispatch({ type: 'CLEAR_SELECTION' });
 
-      lastRequestRef.current = formatStr('');
+      lastRequestRef.current = '';
       lastUserInputValueRef.current = '';
       actionRef.current = 'RESET';
       setCurrentValue('');
@@ -201,8 +210,9 @@ export default function useManagedAutocomplete<Data>(props: UseManagedAutocomple
       const item = items.get(identifier);
       if (!item) return;
 
-      dispatch({ type: 'SELECT_ITEM', payload: item });
-      lastRequestRef.current = formatStr(item.label);
+      const openPopover = action === 'controller' && stateRef.current.isOpen ? true : false;
+      dispatch({ type: 'SELECT_ITEM', payload: { items: item, openPopover } });
+      lastRequestRef.current = item.label;
 
       if (action === 'selected') {
         lastUserInputValueRef.current = item.label;
@@ -221,7 +231,7 @@ export default function useManagedAutocomplete<Data>(props: UseManagedAutocomple
       isControlledUpdateRef.current = false;
       const { inputValue } = stateRef.current;
       const processItems = handleSetFilteredItems(items);
-      const matchingItems = findMatchingItem(inputValue, processItems);
+      const matchingItems = findMatchingItem(inputValue, processItems, propsRef.current.caseSensitive);
       if (matchingItems) handleOnSelect(matchingItems.identifier, processItems, 'controller');
     },
     [handleOnSelect, handleSetFilteredItems],
@@ -247,15 +257,15 @@ export default function useManagedAutocomplete<Data>(props: UseManagedAutocomple
         if (!inputValue) {
           newItems = items;
         } else {
-          const formatInputValue = formatStr(inputValue);
-          newItems = items.filter((item) => formatStr(item.label).includes(formatInputValue));
+          const formatInputValue = format(inputValue);
+          newItems = items.filter((item) => format(item.label).includes(formatInputValue));
         }
       }
 
       const fn = isControlledUpdateRef.current ? applyItemsAndSelect : handleSetFilteredItems;
       fn(newItems);
     },
-    [applyItemsAndSelect, handleSetFilteredItems],
+    [applyItemsAndSelect, format, handleSetFilteredItems],
   );
 
   const handleChange = useCallback(
@@ -266,7 +276,7 @@ export default function useManagedAutocomplete<Data>(props: UseManagedAutocomple
         handleToggleSearching(value.length >= minLengthRequired);
       }
 
-      lastRequestRef.current = formatStr(value);
+      lastRequestRef.current = value;
       lastUserInputValueRef.current = value;
       actionRef.current = 'INPUT_CHANGE';
       setCurrentValue(value);
@@ -285,16 +295,16 @@ export default function useManagedAutocomplete<Data>(props: UseManagedAutocomple
     if (mode === 'static') {
       handleStaticFilter(items.data, inputValue);
     } else {
-      const isResponseIrrelevantToInput = formatStr(inputValue) !== formatStr(items.searchValue ?? '');
+      const isResponseIrrelevantToInput = format(inputValue) !== format(items.searchValue ?? '');
       handleSetFilteredItems(isResponseIrrelevantToInput ? [] : items.data);
     }
 
     const currentSelectedValue = selectedValue;
     if (currentSelectedValue) {
-      lastRequestRef.current = formatStr(currentSelectedValue.label);
+      lastRequestRef.current = currentSelectedValue.label;
       handleOnPreSelected(currentSelectedValue.identifier);
     }
-  }, [handleOnPreSelected, handleSetFilteredItems, handleStaticFilter]);
+  }, [format, handleOnPreSelected, handleSetFilteredItems, handleStaticFilter]);
 
   const handleOnkeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -330,13 +340,13 @@ export default function useManagedAutocomplete<Data>(props: UseManagedAutocomple
 
       const hasCmdkInput = event.relatedTarget?.hasAttribute?.('cmdk-input');
 
-      if (!hasCmdkInput && formatStr(inputValue) !== formatStr(lastValidSelection?.label)) {
+      if (!hasCmdkInput && format(inputValue) !== format(lastValidSelection?.label)) {
         switch (blurAction) {
           case 'restore':
             if (lastValidSelection) {
-              dispatch({ type: 'SELECT_ITEM', payload: lastValidSelection });
+              dispatch({ type: 'SELECT_ITEM', payload: { items: lastValidSelection, openPopover: false } });
 
-              lastRequestRef.current = formatStr(lastValidSelection.label);
+              lastRequestRef.current = lastValidSelection.label;
               // lastUserInputValueRef.current = lastValidSelection.label;
               actionRef.current = 'INPUT_CHANGE';
               setCurrentValue(lastValidSelection.label);
@@ -352,7 +362,7 @@ export default function useManagedAutocomplete<Data>(props: UseManagedAutocomple
         }
       }
     },
-    [handleReset, setCurrentValue],
+    [format, handleReset, setCurrentValue],
   );
 
   useLayoutEffect(() => {
@@ -363,7 +373,7 @@ export default function useManagedAutocomplete<Data>(props: UseManagedAutocomple
   useEffect(() => {
     if (currentValue === stateRef.current.inputValue) return;
 
-    const wasUserInteraction = lastUserInputValueRef.current === currentValue;
+    const wasUserInteraction = format(lastUserInputValueRef.current) === format(currentValue);
     lastUserInputValueRef.current = null;
 
     const { mode } = propsRef.current;
@@ -377,11 +387,11 @@ export default function useManagedAutocomplete<Data>(props: UseManagedAutocomple
       dispatch({ type: 'SET_INPUT_VALUE', payload: { value: currentValue, openPopover: true, clearItems } });
     } else {
       isControlledUpdateRef.current = true;
-      lastRequestRef.current = formatStr(currentValue);
+      lastRequestRef.current = currentValue;
 
       dispatch({ type: 'SET_INPUT_VALUE', payload: { value: currentValue, openPopover: false, clearItems } });
     }
-  }, [currentValue]);
+  }, [currentValue, format]);
 
   useEffect(() => {
     const { minLengthRequired, mode } = propsRef.current;
@@ -413,8 +423,8 @@ export default function useManagedAutocomplete<Data>(props: UseManagedAutocomple
       return;
     }
 
-    const isObsoleteRequest = searchValue !== null && formatStr(searchValue) !== lastRequestRef.current;
-    const isResponseIrrelevantToInput = formatStr(inputValue) !== formatStr(searchValue ?? '');
+    const isObsoleteRequest = searchValue !== null && format(searchValue) !== format(lastRequestRef.current);
+    const isResponseIrrelevantToInput = format(inputValue) !== format(searchValue ?? '');
 
     if (isObsoleteRequest || isResponseIrrelevantToInput) {
       fn([]);
@@ -425,6 +435,7 @@ export default function useManagedAutocomplete<Data>(props: UseManagedAutocomple
     handleToggleSearching(false);
   }, [
     applyItemsAndSelect,
+    format,
     handleSetFilteredItems,
     handleToggleLoading,
     handleToggleSearching,
