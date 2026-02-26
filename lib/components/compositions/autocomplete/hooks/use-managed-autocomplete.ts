@@ -1,5 +1,5 @@
+import { djb2Hash } from '@pl-core/utils/hash';
 import { useCallback, useEffect, useLayoutEffect, useReducer, useRef } from 'react';
-import { djb2Hash } from 'ux-pl/utils/hash';
 
 import useControllableState from '../../../hooks/use-controllable-state';
 import {

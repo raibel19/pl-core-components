@@ -1,4 +1,4 @@
-import { INumberFormatterOptions } from 'ux-pl/utils/numbers';
+import { INumberFormatterOptions } from '@pl-core/utils/numbers';
 
 interface BasePayload<Data> {
   value: string;
@@ -63,3 +63,5 @@ export const ErrorKeys = Object.freeze({
   between: 'between',
   custom: 'custom',
 });
+
+export type Timeout = ReturnType<typeof setTimeout>;

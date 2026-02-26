@@ -1,5 +1,5 @@
+import { numberFormatter } from '@pl-core/utils/numbers';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { numberFormatter } from 'ux-pl/utils/numbers';
 
 import useControllableState from '../../../hooks/use-controllable-state';
 import {

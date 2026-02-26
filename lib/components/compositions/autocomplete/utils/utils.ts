@@ -1,4 +1,4 @@
-import { equals } from 'ux-pl/utils/object';
+import { equals } from '@pl-core/utils/object';
 
 import { AutocompleteAction, ErrorAction, ErrorState, IAutocompleteState, ItemsWithIdentifier } from '../types/types';
 
