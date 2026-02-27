@@ -2,7 +2,7 @@ import { forwardRef } from 'react';
 
 import { cn } from '../../../lib/utils';
 import Label from '../../primitives/label';
-import { useInputActionsContext, useInputContext } from './context';
+import { useInputStableContext } from './context';
 
 export interface InputLabelProps {
   className?: string | undefined;
@@ -26,8 +26,7 @@ export default forwardRef<HTMLLabelElement, InputLabelProps>(function InputLabel
     text,
     textRequired,
   } = props;
-  const { isInvalid } = useInputContext();
-  const { id, disabled } = useInputActionsContext();
+  const { isInvalid, id, disabled } = useInputStableContext();
 
   if (!showText && !textRequired && !isRequired) return null;
 

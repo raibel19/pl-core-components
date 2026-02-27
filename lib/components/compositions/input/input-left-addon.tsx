@@ -2,7 +2,7 @@ import { forwardRef, ReactNode, useLayoutEffect, useRef } from 'react';
 
 import mergeRefs from '../../../lib/merge-refs';
 import { cn } from '../../../lib/utils';
-import { useInputLayopoutContext } from './context';
+import { useInputLayoutContext } from './context';
 import useResizeObserver from './hooks/use-resize-observer';
 
 export interface InputLeftAddonProps {
@@ -14,7 +14,7 @@ export default forwardRef<HTMLDivElement, InputLeftAddonProps>(function InputLef
   const { children, className } = props;
 
   const addonRef = useRef<HTMLDivElement>(null);
-  const { setLeftAddonWidth } = useInputLayopoutContext();
+  const { setLeftAddonWidth } = useInputLayoutContext();
 
   useResizeObserver(addonRef, (entry) => {
     const divWidth = entry.contentRect.width;

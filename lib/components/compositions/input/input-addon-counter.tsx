@@ -2,7 +2,7 @@ import { InfinitySymbol } from '@carbon/icons-react';
 import { forwardRef } from 'react';
 
 import { cn } from '../../../lib/utils';
-import { useInputActionsContext, useInputContext } from './context';
+import { useInputStableContext, useInputVolatileContext } from './context';
 
 export interface InputAddonCounterProps {
   className?: string;
@@ -13,8 +13,8 @@ export interface InputAddonCounterProps {
 export default forwardRef<HTMLDivElement, InputAddonCounterProps>(function InputAddonCounter(props, ref) {
   const { className, classNameInfinitySymbol, show = true } = props;
 
-  const { value, isInvalid } = useInputContext();
-  const { maxLength } = useInputActionsContext();
+  const { value } = useInputVolatileContext();
+  const { isInvalid, maxLength } = useInputStableContext();
 
   if (!show) return null;
 

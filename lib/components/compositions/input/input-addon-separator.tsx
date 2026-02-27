@@ -2,7 +2,7 @@ import { forwardRef } from 'react';
 
 import { cn } from '../../../lib/utils';
 import { Separator } from '../../ui/separator';
-import { useInputActionsContext, useInputContext } from './context';
+import { useInputStableContext } from './context';
 import { separatorVariants } from './input-addon-separator.variants';
 
 export interface InputAddonSeparatorProps {
@@ -12,8 +12,7 @@ export interface InputAddonSeparatorProps {
 
 export default forwardRef<HTMLDivElement, InputAddonSeparatorProps>(function InputAddonSeparator(props, ref) {
   const { show = true, className } = props;
-  const { isInvalid } = useInputContext();
-  const { disabled } = useInputActionsContext();
+  const { isInvalid, disabled } = useInputStableContext();
 
   if (!show) return null;
 

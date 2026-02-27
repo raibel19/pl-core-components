@@ -5,11 +5,12 @@ import useControllableState from '../../../hooks/use-controllable-state';
 import {
   ErrorKeys,
   IFormatter,
-  InputChangePayload,
   InputType,
   ISanitize,
   IValidationBetween,
   IValidationLimits,
+  NumericPayload,
+  TextPayload,
 } from '../types/types';
 import {
   errorReducer,
@@ -21,21 +22,37 @@ import {
   sanitize,
 } from '../utils/utils';
 
-interface UseManagedInputProps<Data> {
-  between?: IValidationBetween;
+interface BaseUseManagedInputProps<Data> {
   data?: Data;
   defaultValue?: string;
-  formatter?: IFormatter;
-  limits?: IValidationLimits;
-  maxLength?: number;
   reset?: boolean;
   resetToInitialValue?: boolean;
-  sanitize?: ISanitize;
   type: InputType;
   value?: string;
-  onValueChange?: (payload: InputChangePayload<Data>) => void;
   setReset?: React.Dispatch<React.SetStateAction<boolean>>;
 }
+
+export type UseManagedInputProps<Data> = BaseUseManagedInputProps<Data> &
+  (
+    | {
+        type: 'text';
+        between?: never;
+        formatter?: never;
+        limits?: never;
+        maxLength?: number;
+        sanitize?: never;
+        onValueChange?: (payload: TextPayload<Data>) => void;
+      }
+    | {
+        type: 'number';
+        between?: IValidationBetween;
+        formatter?: IFormatter;
+        limits?: IValidationLimits;
+        maxLength?: number;
+        sanitize?: ISanitize;
+        onValueChange?: (payload: NumericPayload<Data>) => void;
+      }
+  );
 
 export default function useManagedInput<Data>(props: UseManagedInputProps<Data>) {
   const { defaultValue, reset, type, value: controlledValue, setReset } = props;
@@ -159,16 +176,26 @@ export default function useManagedInput<Data>(props: UseManagedInputProps<Data>)
 
   const onChangeControllableState = useCallback(
     (newValue: string) => {
-      const { data, onValueChange } = propsRef.current;
+      const { data, onValueChange, type } = propsRef.current;
 
-      if (onValueChange) {
+      if (!onValueChange) return;
+
+      if (type === 'number') {
         const floatValue = parseFloat(newValue);
         onValueChange({
+          inputType: 'number',
+          data,
+          floatValue: isNaN(floatValue) ? undefined : floatValue,
+          initialValue: initialValueRef.current,
+          isComplete: !isPartialNumber(newValue),
+          value: newValue,
+        });
+      } else {
+        onValueChange({
+          inputType: 'text',
           data,
           initialValue: initialValueRef.current,
           value: newValue,
-          isComplete: !isPartialNumber(newValue),
-          floatValue: isNaN(floatValue) ? undefined : floatValue,
         });
       }
     },
@@ -271,10 +298,11 @@ export default function useManagedInput<Data>(props: UseManagedInputProps<Data>)
     initialValueRef,
     value: currentValue,
     valueFormatted,
+    isPartialNumber,
+    onAddError: handleAddError,
     onBlur: handleBlur,
     onChange: handleChange,
     onFocus: handleFocus,
     onReset: handleReset,
-    onAddError: handleAddError,
   };
 }

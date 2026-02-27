@@ -1,23 +1,26 @@
 import { createContext, useContext } from 'react';
 
-import { InputTheme, InputType } from './types/types';
+import { InputType } from './types/types';
 
-export interface InputContextProps {
+export interface InputVolatileContextProps {
   displayValue: string;
-  initialValueRef: React.MutableRefObject<string>;
-  isInvalid?: boolean;
   value: string;
   valueFormatted: string;
 }
 
-export interface InputActionsContextProps<Data = unknown> {
+export interface InputStableContextProps<Data = unknown> {
   data?: Data;
   disabled?: boolean;
   errors: string[];
   id: string;
+  initialValueRef: React.MutableRefObject<string>;
+  isInvalid?: boolean;
   maxLength?: number;
-  theme?: InputTheme;
   type: InputType;
+}
+
+export interface InputActionsContextProps {
+  isPartialNumber: (value: string) => boolean;
   onAddError: (key: string, value: string) => void;
   onBlur: () => void;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -32,30 +35,39 @@ export interface InputLayoutContextProps {
   setRightAddonWidth: (width: string | number) => void;
 }
 
-export const InputContext = createContext<InputContextProps | undefined>(undefined);
-export const InputActionsContext = createContext<InputActionsContextProps<unknown> | undefined>(undefined);
+export const InputVolatileContext = createContext<InputVolatileContextProps | undefined>(undefined);
+export const InputStableContext = createContext<InputStableContextProps<unknown> | undefined>(undefined);
+export const InputActionsContext = createContext<InputActionsContextProps | undefined>(undefined);
 export const InputLayoutContext = createContext<InputLayoutContextProps | undefined>(undefined);
 
-export const useInputContext = () => {
-  const context = useContext(InputContext);
+export function useInputVolatileContext() {
+  const context = useContext(InputVolatileContext);
   if (context === undefined) {
-    throw new Error('useInputContext debe ser usado dentro de un Input.Root');
+    throw new Error('useInputVolatileContext debe ser usado dentro de un componente <Input>');
   }
   return context;
-};
+}
 
-export const useInputActionsContext = () => {
+export function useInputStableContext<Data = unknown>() {
+  const context = useContext(InputStableContext) as InputStableContextProps<Data> | undefined;
+  if (context === undefined) {
+    throw new Error('useInputStableContext debe ser usado dentro de un componente <Input>');
+  }
+  return context;
+}
+
+export function useInputActionsContext() {
   const context = useContext(InputActionsContext);
   if (context === undefined) {
-    throw new Error('useInputActionsContext debe ser usado dentro de un Input.Root');
+    throw new Error('useInputActionsContext debe ser usado dentro de un componente <Input>');
   }
   return context;
-};
+}
 
-export const useInputLayopoutContext = () => {
+export function useInputLayoutContext() {
   const context = useContext(InputLayoutContext);
   if (context === undefined) {
     throw new Error('useInputLayopoutContext debe ser usado dentro de un Input.Root');
   }
   return context;
-};
+}

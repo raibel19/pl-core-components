@@ -1,19 +1,29 @@
-import { ForwardedRef, forwardRef, ReactNode, useEffect, useId, useMemo, useState } from 'react';
+import {
+  ForwardedRef,
+  forwardRef,
+  ReactNode,
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import { cn } from '../../../lib/utils';
 import {
   InputActionsContext,
   InputActionsContextProps,
-  InputContext,
-  InputContextProps,
   InputLayoutContext,
   InputLayoutContextProps,
+  InputStableContext,
+  InputStableContextProps,
+  InputVolatileContext,
+  InputVolatileContextProps,
 } from './context';
-import useManagedInput from './hooks/use-managed-input';
+import useManagedInput, { UseManagedInputProps } from './hooks/use-managed-input';
 import {
   IFormatter,
-  InputChangePayload,
-  InputTheme,
   InputType,
   ISanitize,
   IValidationBetween,
@@ -30,7 +40,6 @@ interface BaseInputRootProps<Data> {
   isInvalid?: boolean;
   reset?: boolean;
   resetToInitialValue?: boolean;
-  theme?: InputTheme;
   type: InputType;
   setReset?: React.Dispatch<React.SetStateAction<boolean>>;
   subscribeIsInvalid?: (isInvalid: boolean) => void;
@@ -55,21 +64,21 @@ export type InputRootProps<Data> = BaseInputRootProps<Data> &
   (
     | {
         type: 'text';
-        onValueChange?: (payload: TextPayload<Data>) => void;
         textProcessor?: {
           maxLength?: number;
         };
+        onValueChange?: (payload: TextPayload<Data>) => void;
       }
     | {
         type: 'number';
-        onValueChange?: (payload: NumericPayload<Data>) => void;
         textProcessor?: {
-          sanitize?: ISanitize;
-          maxLength?: number;
           between?: IValidationBetween;
           formatter?: IFormatter;
           limits?: IValidationLimits;
+          maxLength?: number;
+          sanitize?: ISanitize;
         };
+        onValueChange?: (payload: NumericPayload<Data>) => void;
       }
   );
 
@@ -84,11 +93,10 @@ export default forwardRef(function InputRoot<Data>(props: InputRootProps<Data>, 
     reset,
     resetToInitialValue,
     textProcessor,
-    theme = 'default',
     type,
     value: controllerValue,
-    setReset,
     onValueChange,
+    setReset,
     subscribeIsInvalid,
   } = props;
 
@@ -97,24 +105,36 @@ export default forwardRef(function InputRoot<Data>(props: InputRootProps<Data>, 
   const [leftAddonWidth, setLeftAddonWidth] = useState<string | number>(0);
   const [rightAddonWidth, setRightAddonWidth] = useState<string | number>(0);
 
-  const resolvedVariantsProps = useMemo(() => {
-    if (type === 'number') {
-      return {
-        between: textProcessor?.between,
-        formatter: textProcessor?.formatter,
-        limits: textProcessor?.limits,
-        maxLength: textProcessor?.maxLength,
-        sanitize: textProcessor?.sanitize,
-      };
-    }
-    return {
-      between: undefined,
-      formatter: undefined,
-      limits: undefined,
-      maxLength: textProcessor?.maxLength,
-      sanitize: undefined,
-    };
-  }, [textProcessor, type]);
+  const propsRef = useRef({ subscribeIsInvalid });
+
+  const hookProps: UseManagedInputProps<Data> =
+    type === 'number'
+      ? {
+          between: textProcessor?.between,
+          data,
+          defaultValue,
+          formatter: textProcessor?.formatter,
+          limits: textProcessor?.limits,
+          maxLength: textProcessor?.maxLength,
+          reset,
+          resetToInitialValue,
+          sanitize: textProcessor?.sanitize,
+          type,
+          value: controllerValue,
+          onValueChange,
+          setReset,
+        }
+      : {
+          data,
+          defaultValue,
+          maxLength: textProcessor?.maxLength,
+          reset,
+          resetToInitialValue,
+          type,
+          value: controllerValue,
+          onValueChange,
+          setReset,
+        };
 
   const {
     displayValue,
@@ -122,65 +142,49 @@ export default forwardRef(function InputRoot<Data>(props: InputRootProps<Data>, 
     initialValueRef,
     value,
     valueFormatted,
+    isPartialNumber,
     onAddError,
     onBlur,
     onChange,
     onFocus,
     onReset,
-  } = useManagedInput<Data>({
-    ...resolvedVariantsProps,
-    data,
-    defaultValue,
-    reset,
-    resetToInitialValue,
-    type,
-    value: controllerValue,
-    onValueChange: onValueChange as (payload: InputChangePayload<Data>) => void,
-    setReset,
-  });
+  } = useManagedInput<Data>(hookProps);
 
   const isInvalidMemo = useMemo(() => isInvalid || Boolean(errors.length), [errors.length, isInvalid]);
 
-  const contextValue = useMemo<InputContextProps>(
+  const contextVolatileValue = useMemo<InputVolatileContextProps>(
     () => ({
       displayValue,
-      initialValueRef,
-      isInvalid: isInvalidMemo,
       value,
       valueFormatted,
     }),
-    [displayValue, initialValueRef, isInvalidMemo, value, valueFormatted],
+    [displayValue, value, valueFormatted],
   );
 
-  const contextActionsValue = useMemo<InputActionsContextProps<Data>>(
+  const contextStableValue = useMemo<InputStableContextProps<Data>>(
     () => ({
       data,
       disabled,
       errors,
       id,
-      maxLength: resolvedVariantsProps.maxLength,
-      theme,
+      initialValueRef,
+      isInvalid: isInvalidMemo,
+      maxLength: hookProps.maxLength,
       type,
-      onAddError,
-      onBlur,
-      onChange,
-      onFocus,
-      onReset,
     }),
-    [
-      data,
-      disabled,
-      errors,
-      id,
+    [data, disabled, errors, hookProps.maxLength, id, initialValueRef, isInvalidMemo, type],
+  );
+
+  const contextActionsValue = useMemo<InputActionsContextProps>(
+    () => ({
       onAddError,
       onBlur,
       onChange,
       onFocus,
       onReset,
-      resolvedVariantsProps.maxLength,
-      theme,
-      type,
-    ],
+      isPartialNumber,
+    }),
+    [isPartialNumber, onAddError, onBlur, onChange, onFocus, onReset],
   );
 
   const contextLayoutValue = useMemo<InputLayoutContextProps>(
@@ -193,25 +197,31 @@ export default forwardRef(function InputRoot<Data>(props: InputRootProps<Data>, 
     [leftAddonWidth, rightAddonWidth],
   );
 
+  useLayoutEffect(() => {
+    propsRef.current = { subscribeIsInvalid };
+  }, [subscribeIsInvalid]);
+
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      subscribeIsInvalid?.(isInvalidMemo);
+    const id = setTimeout(() => {
+      propsRef.current.subscribeIsInvalid?.(isInvalidMemo);
     }, 200);
 
     return () => {
-      clearTimeout(timeout);
+      clearTimeout(id);
     };
-  }, [isInvalidMemo, subscribeIsInvalid]);
+  }, [isInvalidMemo]);
 
   return (
     <InputLayoutContext.Provider value={contextLayoutValue}>
-      <InputContext.Provider value={contextValue}>
-        <InputActionsContext.Provider value={contextActionsValue}>
-          <div ref={ref} className={cn('w-full space-y-1', className || null)}>
-            {children}
-          </div>
-        </InputActionsContext.Provider>
-      </InputContext.Provider>
+      <InputStableContext.Provider value={contextStableValue}>
+        <InputVolatileContext.Provider value={contextVolatileValue}>
+          <InputActionsContext.Provider value={contextActionsValue}>
+            <div ref={ref} className={cn('w-full space-y-1', className || null)}>
+              {children}
+            </div>
+          </InputActionsContext.Provider>
+        </InputVolatileContext.Provider>
+      </InputStableContext.Provider>
     </InputLayoutContext.Provider>
   );
 }) as <Data>(props: InputRootProps<Data> & { ref?: ForwardedRef<HTMLDivElement> }) => React.JSX.Element;

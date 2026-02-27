@@ -3,7 +3,7 @@ import { TooltipProps, TooltipProviderProps } from '@radix-ui/react-tooltip';
 import { forwardRef, ReactNode } from 'react';
 
 import Addon from '../../primitives/addon';
-import { useInputActionsContext, useInputContext } from './context';
+import { useInputStableContext } from './context';
 
 export interface InputAddonTextProps {
   className?: string | undefined;
@@ -21,8 +21,7 @@ export interface InputAddonTextProps {
 export default forwardRef<HTMLSpanElement, InputAddonTextProps>(function InputAddonText(props, ref) {
   const { show = true, text, ...moreProps } = props;
 
-  const { isInvalid } = useInputContext();
-  const { disabled } = useInputActionsContext();
+  const { isInvalid, disabled } = useInputStableContext();
 
   if (!show) return null;
 

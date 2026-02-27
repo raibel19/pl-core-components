@@ -65,7 +65,6 @@ export type {
   IValidationBetween,
   IValidationLimits,
   InputChangePayload,
-  InputTheme,
   InputType,
   NumericPayload,
   TextPayload,

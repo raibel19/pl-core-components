@@ -6,9 +6,12 @@ interface BasePayload<Data> {
   data: Data | undefined;
 }
 
-export type TextPayload<Data> = BasePayload<Data>;
+export type TextPayload<Data> = BasePayload<Data> & {
+  inputType: 'text';
+};
 
 export type NumericPayload<Data> = BasePayload<Data> & {
+  inputType: 'number';
   floatValue: number | undefined;
   isComplete: boolean;
 };
@@ -16,8 +19,6 @@ export type NumericPayload<Data> = BasePayload<Data> & {
 export type InputChangePayload<Data> = TextPayload<Data> | NumericPayload<Data>;
 
 export type InputType = 'text' | 'number';
-
-export type InputTheme = 'default' | 'inherit' | (string & {});
 
 export interface ISubscribeBetween {
   inRange: boolean;

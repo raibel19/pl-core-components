@@ -6,7 +6,7 @@ import { ReactNode } from 'react';
 
 import { cn } from '../../../lib/utils';
 import Addon from '../../primitives/addon';
-import { useInputActionsContext, useInputContext } from './context';
+import { useInputStableContext } from './context';
 import InputAddonSeparator from './input-addon-separator';
 
 export interface InputAddonErrorProps {
@@ -28,8 +28,7 @@ export interface InputAddonErrorProps {
 export default forwardRef<HTMLDivElement, InputAddonErrorProps>(function InputAddonError(props, ref) {
   const { classNameIcon, icon, show = true, showAddonSeparatorLeft, showAddonSeparatorRight, ...moreProps } = props;
 
-  const { isInvalid } = useInputContext();
-  const { disabled } = useInputActionsContext();
+  const { isInvalid, disabled } = useInputStableContext();
 
   if (!show || !isInvalid) return null;
 

@@ -1,15 +1,15 @@
 import { Search } from '@carbon/icons-react';
 import { HoverCardProps } from '@radix-ui/react-hover-card';
 import { TooltipProps, TooltipProviderProps } from '@radix-ui/react-tooltip';
-import { forwardRef, ReactNode } from 'react';
+import { ForwardedRef, forwardRef, ReactNode, useCallback } from 'react';
 import React from 'react';
 
 import { cn } from '../../../lib/utils';
 import Addon from '../../primitives/addon';
-import { useInputActionsContext, useInputContext } from './context';
+import { useInputActionsContext, useInputStableContext, useInputVolatileContext } from './context';
 import { InputChangePayload } from './types/types';
 
-export interface InputAddonButtonProps {
+export interface InputAddonButtonProps<Data = unknown> {
   className?: string | undefined;
   classNameHoverContent?: string | undefined;
   classNameIcon?: string | undefined;
@@ -22,14 +22,39 @@ export interface InputAddonButtonProps {
   tooltipConfig?: Omit<TooltipProps, 'children'>;
   tooltipContent?: ReactNode;
   tooltipProviderConfig?: Omit<TooltipProviderProps, 'children'>;
-  onClick?: (_: InputChangePayload<unknown>) => void;
+  onClick?: (payload: InputChangePayload<Data>) => void;
 }
 
-export default forwardRef<HTMLButtonElement, InputAddonButtonProps>(function InputAddonButton(props, ref) {
+export default forwardRef(function InputAddonButton<Data = unknown>(
+  props: InputAddonButtonProps<Data>,
+  ref: ForwardedRef<HTMLButtonElement>,
+) {
   const { classNameIcon, icon, onClick, show = true, text, ...moreProps } = props;
 
-  const { isInvalid, value, initialValueRef } = useInputContext();
-  const { data, disabled } = useInputActionsContext();
+  const { value } = useInputVolatileContext();
+  const { data, disabled, isInvalid, initialValueRef, type } = useInputStableContext<Data>();
+  const { isPartialNumber } = useInputActionsContext();
+
+  const onClickHandler = useCallback(() => {
+    if (type === 'number') {
+      const floatValue = parseFloat(value);
+      onClick?.({
+        inputType: 'number',
+        data,
+        initialValue: initialValueRef.current,
+        value,
+        isComplete: !isPartialNumber(value),
+        floatValue: isNaN(floatValue) ? undefined : floatValue,
+      });
+    } else {
+      onClick?.({
+        inputType: 'text',
+        data,
+        initialValue: initialValueRef.current,
+        value,
+      });
+    }
+  }, [data, initialValueRef, isPartialNumber, onClick, type, value]);
 
   if (!show) return null;
 
@@ -59,10 +84,10 @@ export default forwardRef<HTMLButtonElement, InputAddonButtonProps>(function Inp
       {...moreProps}
       disabled={disabled}
       onMouseDown={(e) => e.preventDefault()}
-      onClick={() => onClick?.({ data, value, initialValue: initialValueRef.current })}
+      onClick={onClickHandler}
       aria-disabled={disabled}
     >
       {text ?? iconElement}
     </Addon>
   );
-});
+}) as <Data>(props: InputAddonButtonProps<Data> & { ref?: ForwardedRef<HTMLButtonElement> }) => React.JSX.Element;
