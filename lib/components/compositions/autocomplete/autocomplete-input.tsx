@@ -12,11 +12,11 @@ import {
   useAutocompleteVolatileContext,
 } from './context';
 
-type AutocompleteInputHandle = HTMLInputElement & {};
+export type AutocompleteInputRef = HTMLInputElement & {};
 
-type AutocompleteInputProps = ComponentPropsWithoutRef<'input'>;
+export type AutocompleteInputProps = ComponentPropsWithoutRef<'input'>;
 
-export default forwardRef<AutocompleteInputHandle, AutocompleteInputProps>(function AutocompleteInput(props, ref) {
+export default forwardRef<AutocompleteInputRef, AutocompleteInputProps>(function AutocompleteInput(props, ref) {
   const {
     className,
     onKeyDown: onKeyDownNative,
@@ -36,15 +36,15 @@ export default forwardRef<AutocompleteInputHandle, AutocompleteInputProps>(funct
   useImperativeHandle(ref, () => {
     const node = inputRef.current;
 
-    if (!node) return null as unknown as AutocompleteInputHandle;
+    if (!node) return null as unknown as AutocompleteInputRef;
 
-    // const extendedNode = node as AutocompleteInputHandle;
+    // const extendedNode = node as AutocompleteInputRef;
     // extendedNode.extraFn = () => {
     //   console.log('Extra function called');
     // };
 
     // return extendedNode;
-    return node as AutocompleteInputHandle;
+    return node as AutocompleteInputRef;
   });
 
   const handleOnkeyDown = useCallback(

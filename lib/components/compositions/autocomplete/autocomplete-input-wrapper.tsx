@@ -2,7 +2,7 @@ import { forwardRef, ReactNode } from 'react';
 
 import { cn } from '../../../lib/utils';
 
-interface AutocompleteInputWrapperProps {
+export interface AutocompleteInputWrapperProps {
   children: ReactNode;
   className?: string;
 }

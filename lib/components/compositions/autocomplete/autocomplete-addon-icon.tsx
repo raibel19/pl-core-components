@@ -8,7 +8,7 @@ import { cn } from '../../../lib/utils';
 import Addon from '../../primitives/addon';
 import { useAutocompleteStableContext } from './context';
 
-interface AutocompleteAddonIconProps {
+export interface AutocompleteAddonIconProps {
   className?: string | undefined;
   classNameHoverContent?: string | undefined;
   classNameIcon?: string | undefined;

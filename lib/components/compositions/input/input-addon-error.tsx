@@ -9,7 +9,7 @@ import Addon from '../../primitives/addon';
 import { useInputActionsContext, useInputContext } from './context';
 import InputAddonSeparator from './input-addon-separator';
 
-interface InputAddonErrorProps {
+export interface InputAddonErrorProps {
   className?: string | undefined;
   classNameHoverContent?: string | undefined;
   classNameIcon?: string | undefined;

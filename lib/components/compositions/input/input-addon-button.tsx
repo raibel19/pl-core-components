@@ -9,7 +9,7 @@ import Addon from '../../primitives/addon';
 import { useInputActionsContext, useInputContext } from './context';
 import { InputChangePayload } from './types/types';
 
-interface InputAddonButtonProps {
+export interface InputAddonButtonProps {
   className?: string | undefined;
   classNameHoverContent?: string | undefined;
   classNameIcon?: string | undefined;

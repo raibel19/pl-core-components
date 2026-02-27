@@ -5,7 +5,7 @@ import { cn } from '../../../lib/utils';
 import { useInputLayopoutContext } from './context';
 import useResizeObserver from './hooks/use-resize-observer';
 
-interface InputRightAddonProps {
+export interface InputRightAddonProps {
   children: ReactNode;
   className?: string;
 }

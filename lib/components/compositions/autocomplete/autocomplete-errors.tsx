@@ -4,7 +4,7 @@ import { cn } from '../../../lib/utils';
 import FieldMessage from '../../primitives/field-message';
 import { useAutocompleteStableContext } from './context';
 
-interface AutocompleteErrorsProps extends React.HTMLAttributes<HTMLUListElement> {
+export interface AutocompleteErrorsProps extends React.HTMLAttributes<HTMLUListElement> {
   className?: string;
   customMessageError?: string;
 }

@@ -5,7 +5,7 @@ import { forwardRef, ReactNode } from 'react';
 import Addon from '../../primitives/addon';
 import { useAutocompleteStableContext } from './context';
 
-interface AutocompleteAddonTextProps {
+export interface AutocompleteAddonTextProps {
   className?: string | undefined;
   classNameHoverContent?: string | undefined;
   classNameTooltipContent?: string | undefined;

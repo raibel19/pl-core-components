@@ -9,7 +9,7 @@ import Addon from '../../primitives/addon';
 import { useAutocompleteStableContext, useAutocompleteVolatileContext } from './context';
 import { AutocompleteStateChangePayload } from './types/types';
 
-interface AutocompleteAddonButtonProps {
+export interface AutocompleteAddonButtonProps {
   className?: string | undefined;
   classNameHoverContent?: string | undefined;
   classNameIcon?: string | undefined;

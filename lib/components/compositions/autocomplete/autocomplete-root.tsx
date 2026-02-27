@@ -54,7 +54,7 @@ type ControlledState =
       defaultValue?: never;
     };
 
-type AutocompleteRootProps<Data> = BaseAutocompleteRootProps<Data> &
+export type AutocompleteRootProps<Data> = BaseAutocompleteRootProps<Data> &
   ControlledState &
   (
     | {

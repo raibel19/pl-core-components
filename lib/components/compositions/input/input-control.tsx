@@ -6,7 +6,7 @@ import { cn } from '../../../lib/utils';
 import { useInputActionsContext, useInputContext, useInputLayopoutContext } from './context';
 import { inputVariants } from './input-control.variants';
 
-type InputControlForwardRef = {
+export type InputControlRef = {
   blur: () => void;
   focus: () => void;
   get: () => HTMLElement | null;
@@ -17,11 +17,11 @@ type NativeInputProps = Omit<
   'id' | 'type' | 'onChange' | 'value' | 'defaultValue' | 'disabled'
 >;
 
-interface InputControlProps extends NativeInputProps {
+export interface InputControlProps extends NativeInputProps {
   subscribeFocus?: (isFocus: boolean) => void;
 }
 
-export default forwardRef<InputControlForwardRef, InputControlProps>(function InputControl(props, ref) {
+export default forwardRef<InputControlRef, InputControlProps>(function InputControl(props, ref) {
   const { className, subscribeFocus, onFocus: onFocusNative, onBlur: onBlurNative, ...moreProps } = props;
   const { displayValue, isInvalid } = useInputContext();
   const { id, onBlur, onChange, onFocus, disabled, type } = useInputActionsContext();

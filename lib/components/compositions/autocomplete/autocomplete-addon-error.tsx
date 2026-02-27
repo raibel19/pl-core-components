@@ -9,7 +9,7 @@ import Addon from '../../primitives/addon';
 import AutocompleteAddonSeparator from './autocomplete-addon-separator';
 import { useAutocompleteStableContext } from './context';
 
-interface AutocompleteAddonErrorProps {
+export interface AutocompleteAddonErrorProps {
   className?: string | undefined;
   classNameHoverContent?: string | undefined;
   classNameIcon?: string | undefined;

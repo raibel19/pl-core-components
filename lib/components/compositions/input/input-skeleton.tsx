@@ -3,7 +3,7 @@ import { forwardRef } from 'react';
 import { cn } from '../../../lib/utils';
 import { Skeleton } from '../../ui/skeleton';
 
-interface InputSkeletonProps {
+export interface InputSkeletonProps {
   className?: string | undefined;
   classNameContainer?: string | undefined;
   show?: boolean;

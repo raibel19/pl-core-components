@@ -3,7 +3,7 @@ import { ComponentPropsWithoutRef, forwardRef, ReactNode, useEffect, useState } 
 import { cn } from '../../../lib/utils';
 import { PopoverContent } from '../../ui/popover';
 import { useAutocompleteStableContext } from './context';
-interface AutocompletePopoverProps extends ComponentPropsWithoutRef<typeof PopoverContent> {
+export interface AutocompletePopoverProps extends ComponentPropsWithoutRef<typeof PopoverContent> {
   children: ReactNode;
   className?: string;
 }

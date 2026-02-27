@@ -5,7 +5,7 @@ import { forwardRef, ReactNode } from 'react';
 import Addon from '../../primitives/addon';
 import { useInputActionsContext, useInputContext } from './context';
 
-interface InputAddonTextProps {
+export interface InputAddonTextProps {
   className?: string | undefined;
   classNameHoverContent?: string | undefined;
   classNameTooltipContent?: string | undefined;

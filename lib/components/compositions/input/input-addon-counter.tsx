@@ -4,7 +4,7 @@ import { forwardRef } from 'react';
 import { cn } from '../../../lib/utils';
 import { useInputActionsContext, useInputContext } from './context';
 
-interface InputAddonCounterProps {
+export interface InputAddonCounterProps {
   className?: string;
   classNameInfinitySymbol?: string;
   show?: boolean;

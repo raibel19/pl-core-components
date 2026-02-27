@@ -50,7 +50,7 @@ type ControlledState =
       defaultValue?: never;
     };
 
-type InputRootProps<Data> = BaseInputRootProps<Data> &
+export type InputRootProps<Data> = BaseInputRootProps<Data> &
   ControlledState &
   (
     | {

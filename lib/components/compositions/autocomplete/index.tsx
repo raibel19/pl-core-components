@@ -69,3 +69,37 @@ Autocomplete.RightAddons = AutocompleteRightAddon;
 Autocomplete.Errors = AutocompleteErrors;
 
 export { Autocomplete };
+
+export type {
+  Actions,
+  AutocompleteAction,
+  AutocompleteStateChangePayload,
+  ErrorAction,
+  ErrorState,
+  IAutocompleteState,
+  IItem,
+  Items,
+  ItemsWithIdentifier,
+} from './types/types';
+
+// eslint-disable-next-line react-refresh/only-export-components
+export { ErrorKeys, nonOpeningKeys } from './types/types';
+
+export type { AutocompleteAddonButtonProps } from './autocomplete-addon-button';
+export type { AutocompleteAddonErrorProps } from './autocomplete-addon-error';
+export type { AutocompleteAddonIconProps } from './autocomplete-addon-icon';
+export type { AutocompleteAddonSeparatorProps } from './autocomplete-addon-separator';
+export type { AutocompleteAddonTextProps } from './autocomplete-addon-text';
+export type { AutocompleteErrorsProps } from './autocomplete-errors';
+export type { AutocompleteGroupProps } from './autocomplete-group';
+export type { AutocompleteHeaderProps } from './autocomplete-header';
+export type { AutocompleteHeaderClearButtonProps } from './autocomplete-header-clear-button';
+export type { AutocompleteInputProps, AutocompleteInputRef } from './autocomplete-input';
+export type { AutocompleteInputWrapperProps } from './autocomplete-input-wrapper';
+export type { InputLabelProps } from './autocomplete-label';
+export type { AutocompleteLeftAddonProps } from './autocomplete-left-addon';
+export type { AutocompleteListProps } from './autocomplete-list';
+export type { AutocompleteListVirtualizeProps } from './autocomplete-list-virtualize';
+export type { AutocompletePopoverProps } from './autocomplete-popover';
+export type { AutocompleteRightAddonProps } from './autocomplete-right-addon';
+export type { AutocompleteRootProps as AutocompleteProps } from './autocomplete-root';

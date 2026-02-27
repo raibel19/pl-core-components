@@ -8,7 +8,7 @@ import { cn } from '../../../lib/utils';
 import Addon from '../../primitives/addon';
 import { useInputActionsContext, useInputContext } from './context';
 
-interface InputAddonIconProps {
+export interface InputAddonIconProps {
   className?: string | undefined;
   classNameHoverContent?: string | undefined;
   classNameIcon?: string | undefined;

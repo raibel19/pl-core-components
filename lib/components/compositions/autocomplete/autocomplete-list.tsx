@@ -10,7 +10,7 @@ import styles from './autocomplete.module.css';
 import { useAutocompleteActionsContext, useAutocompleteStableContext, useAutocompleteVolatileContext } from './context';
 import { ItemsWithIdentifier } from './types/types';
 
-interface AutocompleteListProps {
+export interface AutocompleteListProps {
   className?: string;
   classNameGroup?: string;
   classNameItem?: string;

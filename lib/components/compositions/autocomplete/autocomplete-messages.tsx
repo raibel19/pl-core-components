@@ -4,7 +4,7 @@ import { cn } from '../../../lib/utils';
 import { CommandEmpty } from '../../ui/command';
 import { useAutocompleteStableContext, useAutocompleteVolatileContext } from './context';
 
-interface AutocompleteMessagesProps {
+export interface AutocompleteMessagesProps {
   className?: string;
   initialText?: string;
   noResultText?: string;

@@ -5,7 +5,7 @@ import { Separator } from '../../ui/separator';
 import { useInputActionsContext, useInputContext } from './context';
 import { separatorVariants } from './input-addon-separator.variants';
 
-interface InputAddonSeparatorProps {
+export interface InputAddonSeparatorProps {
   show?: boolean;
   className?: string;
 }

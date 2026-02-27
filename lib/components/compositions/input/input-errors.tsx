@@ -4,7 +4,7 @@ import { cn } from '../../../lib/utils';
 import FieldMessage from '../../primitives/field-message';
 import { useInputActionsContext, useInputContext } from './context';
 
-interface InputErrorsProps extends React.HTMLAttributes<HTMLUListElement> {
+export interface InputErrorsProps extends React.HTMLAttributes<HTMLUListElement> {
   className?: string;
   customMessageError?: string;
 }

@@ -2,7 +2,7 @@ import { forwardRef, ReactNode } from 'react';
 
 import { cn } from '../../../lib/utils';
 
-interface InputContentProps {
+export interface InputContentProps {
   children: ReactNode;
   className?: string;
 }

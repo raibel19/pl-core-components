@@ -2,7 +2,7 @@ import { Command, CommandList } from '../../ui/command';
 import { Popover } from '../../ui/popover';
 import { useAutocompleteActionsContext, useAutocompleteStableContext, useAutocompleteVolatileContext } from './context';
 
-interface AutocompleteGroupProps {
+export interface AutocompleteGroupProps {
   children: React.ReactNode;
 }
 

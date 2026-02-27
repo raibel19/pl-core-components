@@ -20,19 +20,18 @@
   "exports": {
     ".": {
       "types": "./dist/main.d.ts",
+      "import": "./dist/main.js",
       "default": "./dist/main.js"
     },
-    "./components": {
-      "types": "./dist/components/index.d.ts",
-      "default": "./dist/components/index.js"
+    "./input": {
+      "types": "./dist/components/compositions/input/index.d.ts",
+      "import": "./dist/components/compositions/input/index.js",
+      "default": "./dist/components/compositions/input/index.js"
     },
-    "./components/": {
-      "types": "./dist/components/index.d.ts",
-      "default": "./dist/components/index.js"
-    },
-    "./components/*": {
-      "types": "./dist/components/*/index.d.ts",
-      "default": "./dist/components/*/index.js"
+    "./autocomplete": {
+      "types": "./dist/components/compositions/autocomplete/index.d.ts",
+      "import": "./dist/components/compositions/autocomplete/index.js",
+      "default": "./dist/components/compositions/autocomplete/index.js"
     },
     "./tailwind": {
       "types": "./dist/tailwind.config-components.d.ts",

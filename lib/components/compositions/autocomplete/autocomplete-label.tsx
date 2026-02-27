@@ -4,7 +4,7 @@ import { cn } from '../../../lib/utils';
 import Label from '../../primitives/label';
 import { useAutocompleteStableContext } from './context';
 
-interface InputLabelProps {
+export interface InputLabelProps {
   className?: string | undefined;
   classNameRequired?: string;
   classNameText?: string;

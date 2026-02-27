@@ -5,7 +5,7 @@ import { cn } from '../../../lib/utils';
 import { useAutocompleteLayoutContext } from './context';
 import useResizeObserver from './hooks/use-resize-observer';
 
-interface AutocompleteRightAddonProps {
+export interface AutocompleteRightAddonProps {
   children: ReactNode;
   className?: string;
 }

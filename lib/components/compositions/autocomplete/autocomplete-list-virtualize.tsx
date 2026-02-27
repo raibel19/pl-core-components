@@ -11,7 +11,7 @@ import { useAutocompleteActionsContext, useAutocompleteStableContext, useAutocom
 import { ItemsWithIdentifier } from './types/types';
 import { findNextEnabledIndex } from './utils/utils';
 
-interface AutocompleteListVirtualizeProps {
+export interface AutocompleteListVirtualizeProps {
   className?: string;
   classNameGroup?: string;
   classNameItem?: string;

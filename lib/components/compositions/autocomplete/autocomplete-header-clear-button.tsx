@@ -4,7 +4,7 @@ import { forwardRef } from 'react';
 import { cn } from '../../../lib/utils';
 import { useAutocompleteActionsContext, useAutocompleteStableContext, useAutocompleteVolatileContext } from './context';
 
-interface AutocompleteHeaderClearButtonProps {
+export interface AutocompleteHeaderClearButtonProps {
   className?: string;
   classNameIcon?: string;
 }

@@ -2,7 +2,7 @@ import { Command } from 'cmdk';
 import { Loader2 } from 'lucide-react';
 import { ComponentPropsWithoutRef, forwardRef, ReactNode } from 'react';
 
-interface AutocompleteLoadingProps extends ComponentPropsWithoutRef<typeof Command.Loading> {
+export interface AutocompleteLoadingProps extends ComponentPropsWithoutRef<typeof Command.Loading> {
   children?: ReactNode;
   showText?: boolean;
   text?: string;

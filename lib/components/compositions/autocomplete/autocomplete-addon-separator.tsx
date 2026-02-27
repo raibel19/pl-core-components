@@ -5,7 +5,7 @@ import { Separator } from '../../ui/separator';
 import { separatorVariants } from './autocomplete-addon-separator.variants';
 import { useAutocompleteStableContext } from './context';
 
-interface AutocompleteAddonSeparatorProps {
+export interface AutocompleteAddonSeparatorProps {
   show?: boolean;
   className?: string;
 }

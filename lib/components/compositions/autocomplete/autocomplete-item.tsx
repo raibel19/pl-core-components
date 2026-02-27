@@ -5,7 +5,7 @@ import { CommandItem } from '../../ui/command';
 import { AutocompleteActionsContextProps } from './context';
 import { ItemsWithIdentifier } from './types/types';
 
-interface AutocompleteItemProps {
+export interface AutocompleteItemProps {
   className?: string;
   item: ItemsWithIdentifier;
   isSelected: boolean;
