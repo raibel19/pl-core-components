@@ -8,8 +8,9 @@ import { cn } from '../../../lib/utils';
 import Addon from '../../primitives/addon';
 import { useInputActionsContext, useInputStableContext, useInputVolatileContext } from './context';
 import InputAddonSeparator from './input-addon-separator';
+import { AddonSeparatorProps } from './types/types';
 
-export interface InputAddonClearProps {
+export type InputAddonClearProps = {
   className?: string | undefined;
   classNameHoverContent?: string | undefined;
   classNameIcon?: string | undefined;
@@ -17,20 +18,17 @@ export interface InputAddonClearProps {
   hoverConfig?: Omit<HoverCardProps, 'children'>;
   hoverContent?: ReactNode;
   icon?: React.ReactElement | undefined;
-  resetToInitialValue?: boolean;
   show?: boolean;
-  showAddonSeparatorLeft?: boolean;
-  showAddonSeparatorRight?: boolean;
   tooltipConfig?: Omit<TooltipProps, 'children'>;
   tooltipContent?: ReactNode;
   tooltipProviderConfig?: Omit<TooltipProviderProps, 'children'>;
-}
+} & AddonSeparatorProps;
 
 export default forwardRef<HTMLButtonElement, InputAddonClearProps>(function InputAddonClear(props, ref) {
   const {
     classNameIcon,
+    classNameSeparator,
     icon,
-    resetToInitialValue = false,
     show = true,
     showAddonSeparatorLeft,
     showAddonSeparatorRight,
@@ -63,7 +61,7 @@ export default forwardRef<HTMLButtonElement, InputAddonClearProps>(function Inpu
 
   return (
     <>
-      {showAddonSeparatorLeft && <InputAddonSeparator />}
+      {showAddonSeparatorLeft && <InputAddonSeparator className={classNameSeparator} />}
       <Addon
         as={'button'}
         ref={ref}
@@ -71,12 +69,12 @@ export default forwardRef<HTMLButtonElement, InputAddonClearProps>(function Inpu
         {...moreProps}
         disabled={disabled}
         onMouseDown={(e) => e.preventDefault()}
-        onClick={() => onReset(resetToInitialValue)}
+        onClick={onReset}
         aria-disabled={disabled}
       >
         {iconElement}
       </Addon>
-      {showAddonSeparatorRight && <InputAddonSeparator />}
+      {showAddonSeparatorRight && <InputAddonSeparator className={classNameSeparator} />}
     </>
   );
 });

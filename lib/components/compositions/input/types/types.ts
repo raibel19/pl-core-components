@@ -48,17 +48,10 @@ interface BaseSanitize {
   allowNegative?: boolean;
 }
 
-export type ISanitize = BaseSanitize &
-  (
-    | {
-        maxDecimalDigits?: 0;
-        decimalSeparator?: '.' | ',';
-      }
-    | {
-        maxDecimalDigits: number;
-        decimalSeparator: '.' | ',';
-      }
-  );
+export type ISanitize = BaseSanitize & {
+  maxDecimalDigits?: number;
+  decimalSeparator?: '.' | ',';
+};
 
 export type ErrorState = Map<string, string>;
 
@@ -76,3 +69,25 @@ export const ErrorKeys = Object.freeze({
 });
 
 export type Timeout = ReturnType<typeof setTimeout>;
+
+export type AddonSeparatorProps =
+  | {
+      showAddonSeparatorLeft?: false;
+      showAddonSeparatorRight?: false;
+      classNameSeparator?: never;
+    }
+  | {
+      showAddonSeparatorLeft: true;
+      showAddonSeparatorRight?: false;
+      classNameSeparator?: string;
+    }
+  | {
+      showAddonSeparatorLeft?: false;
+      showAddonSeparatorRight: true;
+      classNameSeparator?: string;
+    }
+  | {
+      showAddonSeparatorLeft: true;
+      showAddonSeparatorRight: true;
+      classNameSeparator?: string;
+    };

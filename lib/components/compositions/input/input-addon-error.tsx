@@ -8,8 +8,9 @@ import { cn } from '../../../lib/utils';
 import Addon from '../../primitives/addon';
 import { useInputStableContext } from './context';
 import InputAddonSeparator from './input-addon-separator';
+import { AddonSeparatorProps } from './types/types';
 
-export interface InputAddonErrorProps {
+export type InputAddonErrorProps = {
   className?: string | undefined;
   classNameHoverContent?: string | undefined;
   classNameIcon?: string | undefined;
@@ -18,15 +19,21 @@ export interface InputAddonErrorProps {
   hoverContent?: ReactNode;
   icon?: React.ReactElement | undefined;
   show?: boolean;
-  showAddonSeparatorLeft?: boolean;
-  showAddonSeparatorRight?: boolean;
   tooltipConfig?: Omit<TooltipProps, 'children'>;
   tooltipContent?: ReactNode;
   tooltipProviderConfig?: Omit<TooltipProviderProps, 'children'>;
-}
+} & AddonSeparatorProps;
 
 export default forwardRef<HTMLDivElement, InputAddonErrorProps>(function InputAddonError(props, ref) {
-  const { classNameIcon, icon, show = true, showAddonSeparatorLeft, showAddonSeparatorRight, ...moreProps } = props;
+  const {
+    classNameIcon,
+    classNameSeparator,
+    icon,
+    show = true,
+    showAddonSeparatorLeft,
+    showAddonSeparatorRight,
+    ...moreProps
+  } = props;
 
   const { isInvalid, disabled } = useInputStableContext();
 
@@ -52,7 +59,7 @@ export default forwardRef<HTMLDivElement, InputAddonErrorProps>(function InputAd
 
   return (
     <>
-      {showAddonSeparatorLeft && <InputAddonSeparator />}
+      {showAddonSeparatorLeft && <InputAddonSeparator className={classNameSeparator} />}
       <Addon
         as={'div'}
         ref={ref}
@@ -63,7 +70,7 @@ export default forwardRef<HTMLDivElement, InputAddonErrorProps>(function InputAd
       >
         {iconElement}
       </Addon>
-      {showAddonSeparatorRight && <InputAddonSeparator />}
+      {showAddonSeparatorRight && <InputAddonSeparator className={classNameSeparator} />}
     </>
   );
 });

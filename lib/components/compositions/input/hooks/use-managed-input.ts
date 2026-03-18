@@ -243,18 +243,16 @@ export default function useManagedInput<Data = undefined>(props: UseManagedInput
     [processRawValue, setCurrentValue],
   );
 
-  const handleReset = useCallback(
-    (resetToInitialValue: boolean | undefined) => {
-      const initialValue = initialValueRef.current;
-      const resetValue = resetToInitialValue === true ? initialValue : '';
+  const handleReset = useCallback(() => {
+    const { resetToInitialValue } = propsRef.current;
+    const initialValue = initialValueRef.current;
+    const resetValue = resetToInitialValue === true ? initialValue : '';
 
-      dispatchError({ type: 'CLEAR_ERRORS' });
+    dispatchError({ type: 'CLEAR_ERRORS' });
 
-      setIntlFormat('');
-      setCurrentValue(resetValue);
-    },
-    [setCurrentValue],
-  );
+    setIntlFormat('');
+    setCurrentValue(resetValue);
+  }, [setCurrentValue]);
 
   const handleAddError = useCallback((key: string, value: string) => {
     dispatchError({
@@ -279,10 +277,8 @@ export default function useManagedInput<Data = undefined>(props: UseManagedInput
 
   useEffect(() => {
     if (reset && setReset) {
-      const { resetToInitialValue } = propsRef.current;
-
       setReset(false);
-      handleReset(resetToInitialValue);
+      handleReset();
     }
   }, [handleReset, reset, setReset]);
 

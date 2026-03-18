@@ -4,8 +4,10 @@ import { forwardRef, ReactNode } from 'react';
 
 import Addon from '../../primitives/addon';
 import { useInputStableContext } from './context';
+import InputAddonSeparator from './input-addon-separator';
+import { AddonSeparatorProps } from './types/types';
 
-export interface InputAddonTextProps {
+export type InputAddonTextProps = {
   className?: string | undefined;
   classNameHoverContent?: string | undefined;
   classNameTooltipContent?: string | undefined;
@@ -16,25 +18,36 @@ export interface InputAddonTextProps {
   tooltipConfig?: Omit<TooltipProps, 'children'>;
   tooltipContent?: ReactNode;
   tooltipProviderConfig?: Omit<TooltipProviderProps, 'children'>;
-}
+} & AddonSeparatorProps;
 
 export default forwardRef<HTMLSpanElement, InputAddonTextProps>(function InputAddonText(props, ref) {
-  const { show = true, text, ...moreProps } = props;
+  const {
+    classNameSeparator,
+    show = true,
+    showAddonSeparatorLeft,
+    showAddonSeparatorRight,
+    text,
+    ...moreProps
+  } = props;
 
   const { isInvalid, disabled } = useInputStableContext();
 
   if (!show) return null;
 
   return (
-    <Addon
-      as={'span'}
-      ref={ref}
-      variant={{ isError: isInvalid, type: 'text', isDisabled: disabled }}
-      {...moreProps}
-      onMouseDown={(e) => e.preventDefault()}
-      aria-disabled={disabled}
-    >
-      {text}
-    </Addon>
+    <>
+      {showAddonSeparatorLeft && <InputAddonSeparator className={classNameSeparator} />}
+      <Addon
+        as={'span'}
+        ref={ref}
+        variant={{ isError: isInvalid, type: 'text', isDisabled: disabled }}
+        {...moreProps}
+        onMouseDown={(e) => e.preventDefault()}
+        aria-disabled={disabled}
+      >
+        {text}
+      </Addon>
+      {showAddonSeparatorRight && <InputAddonSeparator className={classNameSeparator} />}
+    </>
   );
 });

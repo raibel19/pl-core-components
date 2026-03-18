@@ -22,12 +22,21 @@ type NativeInputProps = Omit<
   'id' | 'type' | 'onChange' | 'value' | 'defaultValue' | 'disabled'
 >;
 
-export interface InputControlProps extends NativeInputProps {
+export type InputControlProps = NativeInputProps & {
   subscribeFocus?: (isFocus: boolean) => void;
-}
+  classNameWrapper?: string;
+};
 
 export default forwardRef<InputControlRef, InputControlProps>(function InputControl(props, ref) {
-  const { className, subscribeFocus, onFocus: onFocusNative, onBlur: onBlurNative, ...moreProps } = props;
+  const {
+    children,
+    className,
+    classNameWrapper,
+    onBlur: onBlurNative,
+    onFocus: onFocusNative,
+    subscribeFocus,
+    ...moreProps
+  } = props;
 
   const { displayValue } = useInputVolatileContext();
   const { isInvalid, id, disabled, type } = useInputStableContext();
@@ -70,24 +79,27 @@ export default forwardRef<InputControlRef, InputControlProps>(function InputCont
   );
 
   return (
-    <Input
-      ref={inputRef}
-      {...moreProps}
-      id={id}
-      type={type === 'number' ? 'text' : type}
-      value={displayValue}
-      defaultValue={undefined}
-      onFocus={handleFocus}
-      onBlur={handleBlur}
-      onChange={onChange}
-      disabled={disabled}
-      className={cn(
-        inputVariants({ isError: isInvalid }),
-        leftAddonWidth && 'ps-[--leftWidth]',
-        rightAddonWidth && 'pe-[--rightWidth]',
-        className || null,
-      )}
-      style={{ '--leftWidth': `${leftAddonWidth}`, '--rightWidth': `${rightAddonWidth}` } as React.CSSProperties}
-    />
+    <div className={cn('relative w-full', classNameWrapper || null)}>
+      <Input
+        ref={inputRef}
+        {...moreProps}
+        id={id}
+        type={type === 'number' ? 'text' : type}
+        value={displayValue}
+        defaultValue={undefined}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        onChange={onChange}
+        disabled={disabled}
+        className={cn(
+          inputVariants({ isError: isInvalid }),
+          leftAddonWidth && 'ps-[--leftWidth]',
+          rightAddonWidth && 'pe-[--rightWidth]',
+          className || null,
+        )}
+        style={{ '--leftWidth': `${leftAddonWidth}`, '--rightWidth': `${rightAddonWidth}` } as React.CSSProperties}
+      />
+      {children}
+    </div>
   );
 });

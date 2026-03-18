@@ -7,9 +7,10 @@ import React from 'react';
 import { cn } from '../../../lib/utils';
 import Addon from '../../primitives/addon';
 import { useInputActionsContext, useInputStableContext, useInputVolatileContext } from './context';
-import { InputChangePayload } from './types/types';
+import InputAddonSeparator from './input-addon-separator';
+import { AddonSeparatorProps, InputChangePayload } from './types/types';
 
-export interface InputAddonButtonProps<Data = undefined> {
+export type InputAddonButtonProps<Data = undefined> = {
   className?: string | undefined;
   classNameHoverContent?: string | undefined;
   classNameIcon?: string | undefined;
@@ -23,13 +24,23 @@ export interface InputAddonButtonProps<Data = undefined> {
   tooltipContent?: ReactNode;
   tooltipProviderConfig?: Omit<TooltipProviderProps, 'children'>;
   onClick?: (payload: InputChangePayload<Data>) => void;
-}
+} & AddonSeparatorProps;
 
 export default forwardRef(function InputAddonButton<Data = undefined>(
   props: InputAddonButtonProps<Data>,
   ref: ForwardedRef<HTMLButtonElement>,
 ) {
-  const { classNameIcon, icon, onClick, show = true, text, ...moreProps } = props;
+  const {
+    classNameIcon,
+    classNameSeparator,
+    icon,
+    show = true,
+    showAddonSeparatorLeft,
+    showAddonSeparatorRight,
+    text,
+    onClick,
+    ...moreProps
+  } = props;
 
   const { value } = useInputVolatileContext();
   const { data, disabled, isInvalid, initialValueRef, type } = useInputStableContext<Data>();
@@ -79,18 +90,22 @@ export default forwardRef(function InputAddonButton<Data = undefined>(
   }
 
   return (
-    <Addon
-      as={'button'}
-      ref={ref}
-      variant={{ isError: isInvalid, type: 'button', isDisabled: disabled }}
-      {...moreProps}
-      disabled={disabled}
-      onMouseDown={(e) => e.preventDefault()}
-      onClick={onClickHandler}
-      aria-disabled={disabled}
-    >
-      {text ?? iconElement}
-    </Addon>
+    <>
+      {showAddonSeparatorLeft && <InputAddonSeparator className={classNameSeparator} />}
+      <Addon
+        as={'button'}
+        ref={ref}
+        variant={{ isError: isInvalid, type: 'button', isDisabled: disabled }}
+        {...moreProps}
+        disabled={disabled}
+        onMouseDown={(e) => e.preventDefault()}
+        onClick={onClickHandler}
+        aria-disabled={disabled}
+      >
+        {text ?? iconElement}
+      </Addon>
+      {showAddonSeparatorRight && <InputAddonSeparator className={classNameSeparator} />}
+    </>
   );
 }) as <Data = undefined>(
   props: InputAddonButtonProps<Data> & { ref?: ForwardedRef<HTMLButtonElement> },

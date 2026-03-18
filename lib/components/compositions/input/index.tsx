@@ -5,7 +5,6 @@ import InputAddonError from './input-addon-error';
 import InputAddonIcon from './input-addon-icon';
 import InputAddonSeparator from './input-addon-separator';
 import InputAddonText from './input-addon-text';
-import InputContent from './input-content';
 import InputControl from './input-control';
 import InputErrors from './input-errors';
 import InputLabel from './input-label';
@@ -26,7 +25,6 @@ type InputAddonsComponent = {
 
 type InputComponent = typeof InputRoot & {
   Addons: InputAddonsComponent;
-  Content: typeof InputContent;
   Control: typeof InputControl;
   Errors: typeof InputErrors;
   Label: typeof InputLabel;
@@ -46,7 +44,6 @@ Addons.Text = InputAddonText;
 
 const Input = InputRoot as InputComponent;
 Input.Addons = Addons;
-Input.Content = InputContent;
 Input.Control = InputControl;
 Input.Errors = InputErrors;
 Input.Label = InputLabel;
@@ -60,12 +57,12 @@ export type {
   ErrorAction,
   ErrorState,
   IFormatter,
+  InputChangePayload,
+  InputType,
   ISanitize,
   ISubscribeBetween,
   IValidationBetween,
   IValidationLimits,
-  InputChangePayload,
-  InputType,
   NumericPayload,
   TextPayload,
   Timeout,
@@ -80,7 +77,6 @@ export type { InputAddonErrorProps } from './input-addon-error';
 export type { InputAddonIconProps } from './input-addon-icon';
 export type { InputAddonSeparatorProps } from './input-addon-separator';
 export type { InputAddonTextProps } from './input-addon-text';
-export type { InputContentProps } from './input-content';
 export type { InputControlProps, InputControlRef } from './input-control';
 export type { InputErrorsProps } from './input-errors';
 export type { InputLabelProps } from './input-label';

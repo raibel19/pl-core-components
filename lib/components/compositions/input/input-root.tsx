@@ -217,16 +217,16 @@ export default forwardRef(function InputRoot<Data = undefined>(
   }, [isInvalidMemo]);
 
   return (
-    <InputLayoutContext.Provider value={contextLayoutValue}>
-      <InputStableContext.Provider value={contextStableValue}>
-        <InputVolatileContext.Provider value={contextVolatileValue}>
-          <InputActionsContext.Provider value={contextActionsValue}>
-            <div ref={ref} className={cn('w-full space-y-1', className || null)}>
-              {children}
-            </div>
-          </InputActionsContext.Provider>
-        </InputVolatileContext.Provider>
-      </InputStableContext.Provider>
-    </InputLayoutContext.Provider>
+    <div ref={ref} className={cn('w-full space-y-1', className || null)}>
+      <div className={'relative w-full'}>
+        <InputLayoutContext.Provider value={contextLayoutValue}>
+          <InputStableContext.Provider value={contextStableValue}>
+            <InputVolatileContext.Provider value={contextVolatileValue}>
+              <InputActionsContext.Provider value={contextActionsValue}>{children}</InputActionsContext.Provider>
+            </InputVolatileContext.Provider>
+          </InputStableContext.Provider>
+        </InputLayoutContext.Provider>
+      </div>
+    </div>
   );
 }) as <Data = undefined>(props: InputRootProps<Data> & { ref?: ForwardedRef<HTMLDivElement> }) => React.JSX.Element;

@@ -25,7 +25,7 @@ export interface InputActionsContextProps {
   onBlur: () => void;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onFocus: () => void;
-  onReset: (resetToInitialValue: boolean | undefined) => void;
+  onReset: () => void;
 }
 
 export interface InputLayoutContextProps {

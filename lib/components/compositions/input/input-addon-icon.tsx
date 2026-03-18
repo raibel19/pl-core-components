@@ -7,8 +7,10 @@ import React from 'react';
 import { cn } from '../../../lib/utils';
 import Addon from '../../primitives/addon';
 import { useInputStableContext } from './context';
+import InputAddonSeparator from './input-addon-separator';
+import { AddonSeparatorProps } from './types/types';
 
-export interface InputAddonIconProps {
+export type InputAddonIconProps = {
   className?: string | undefined;
   classNameHoverContent?: string | undefined;
   classNameIcon?: string | undefined;
@@ -20,10 +22,18 @@ export interface InputAddonIconProps {
   tooltipConfig?: Omit<TooltipProps, 'children'>;
   tooltipContent?: ReactNode;
   tooltipProviderConfig?: Omit<TooltipProviderProps, 'children'>;
-}
+} & AddonSeparatorProps;
 
 export default forwardRef<HTMLDivElement, InputAddonIconProps>(function InputAddonIcon(props, ref) {
-  const { classNameIcon, icon, show = true, ...moreProps } = props;
+  const {
+    classNameIcon,
+    classNameSeparator,
+    icon,
+    show = true,
+    showAddonSeparatorLeft,
+    showAddonSeparatorRight,
+    ...moreProps
+  } = props;
 
   const { isInvalid, disabled } = useInputStableContext();
 
@@ -48,15 +58,19 @@ export default forwardRef<HTMLDivElement, InputAddonIconProps>(function InputAdd
   }
 
   return (
-    <Addon
-      as={'div'}
-      ref={ref}
-      variant={{ isError: isInvalid, type: 'icon', isDisabled: disabled }}
-      {...moreProps}
-      onMouseDown={(e) => e.preventDefault()}
-      aria-disabled={disabled}
-    >
-      {iconElement}
-    </Addon>
+    <>
+      {showAddonSeparatorLeft && <InputAddonSeparator className={classNameSeparator} />}
+      <Addon
+        as={'div'}
+        ref={ref}
+        variant={{ isError: isInvalid, type: 'icon', isDisabled: disabled }}
+        {...moreProps}
+        onMouseDown={(e) => e.preventDefault()}
+        aria-disabled={disabled}
+      >
+        {iconElement}
+      </Addon>
+      {showAddonSeparatorRight && <InputAddonSeparator className={classNameSeparator} />}
+    </>
   );
 });
