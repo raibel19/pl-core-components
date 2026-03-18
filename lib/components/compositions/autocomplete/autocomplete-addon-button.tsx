@@ -6,10 +6,11 @@ import React from 'react';
 
 import { cn } from '../../../lib/utils';
 import Addon from '../../primitives/addon';
+import AutocompleteAddonSeparator from './autocomplete-addon-separator';
 import { useAutocompleteStableContext, useAutocompleteVolatileContext } from './context';
-import { AutocompleteStateChangePayload } from './types/types';
+import { AddonSeparatorProps, AutocompleteStateChangePayload } from './types/types';
 
-export interface AutocompleteAddonButtonProps<Data = undefined> {
+export type AutocompleteAddonButtonProps<Data = undefined> = {
   className?: string | undefined;
   classNameHoverContent?: string | undefined;
   classNameIcon?: string | undefined;
@@ -23,13 +24,23 @@ export interface AutocompleteAddonButtonProps<Data = undefined> {
   tooltipContent?: ReactNode;
   tooltipProviderConfig?: Omit<TooltipProviderProps, 'children'>;
   onClick?: (payload: Omit<AutocompleteStateChangePayload<Data>, 'type'>) => void;
-}
+} & AddonSeparatorProps;
 
 export default forwardRef(function AutocompleteAddonButton<Data = undefined>(
   props: AutocompleteAddonButtonProps<Data>,
   ref: ForwardedRef<HTMLButtonElement>,
 ) {
-  const { classNameIcon, icon, onClick, show = true, text, ...moreProps } = props;
+  const {
+    classNameIcon,
+    classNameSeparator,
+    icon,
+    show = true,
+    showAddonSeparatorLeft,
+    showAddonSeparatorRight,
+    text,
+    onClick,
+    ...moreProps
+  } = props;
 
   const { isInvalid, initialValueRef, lastValidSelection, data, disabled } = useAutocompleteStableContext<Data>();
   const { inputValue } = useAutocompleteVolatileContext();
@@ -64,18 +75,22 @@ export default forwardRef(function AutocompleteAddonButton<Data = undefined>(
   }
 
   return (
-    <Addon
-      as={'button'}
-      ref={ref}
-      variant={{ isError: isInvalid, type: 'button', isDisabled: disabled }}
-      {...moreProps}
-      disabled={disabled}
-      onMouseDown={(e) => e.preventDefault()}
-      onClick={onClickHandler}
-      aria-disabled={disabled}
-    >
-      {text ?? iconElement}
-    </Addon>
+    <>
+      {showAddonSeparatorLeft && <AutocompleteAddonSeparator className={classNameSeparator} />}
+      <Addon
+        as={'button'}
+        ref={ref}
+        variant={{ isError: isInvalid, type: 'button', isDisabled: disabled }}
+        {...moreProps}
+        disabled={disabled}
+        onMouseDown={(e) => e.preventDefault()}
+        onClick={onClickHandler}
+        aria-disabled={disabled}
+      >
+        {text ?? iconElement}
+      </Addon>
+      {showAddonSeparatorRight && <AutocompleteAddonSeparator className={classNameSeparator} />}
+    </>
   );
 }) as <Data = undefined>(
   props: AutocompleteAddonButtonProps<Data> & { ref?: ForwardedRef<HTMLButtonElement> },

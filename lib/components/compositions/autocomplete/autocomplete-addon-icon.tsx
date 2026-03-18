@@ -6,9 +6,11 @@ import React from 'react';
 
 import { cn } from '../../../lib/utils';
 import Addon from '../../primitives/addon';
+import AutocompleteAddonSeparator from './autocomplete-addon-separator';
 import { useAutocompleteStableContext } from './context';
+import { AddonSeparatorProps } from './types/types';
 
-export interface AutocompleteAddonIconProps {
+export type AutocompleteAddonIconProps = {
   className?: string | undefined;
   classNameHoverContent?: string | undefined;
   classNameIcon?: string | undefined;
@@ -20,10 +22,18 @@ export interface AutocompleteAddonIconProps {
   tooltipConfig?: Omit<TooltipProps, 'children'>;
   tooltipContent?: ReactNode;
   tooltipProviderConfig?: Omit<TooltipProviderProps, 'children'>;
-}
+} & AddonSeparatorProps;
 
 export default forwardRef<HTMLDivElement, AutocompleteAddonIconProps>(function AutocompleteAddonIcon(props, ref) {
-  const { classNameIcon, icon, show = true, ...moreProps } = props;
+  const {
+    classNameIcon,
+    classNameSeparator,
+    icon,
+    show = true,
+    showAddonSeparatorLeft,
+    showAddonSeparatorRight,
+    ...moreProps
+  } = props;
 
   const { isInvalid, disabled } = useAutocompleteStableContext();
 
@@ -48,15 +58,19 @@ export default forwardRef<HTMLDivElement, AutocompleteAddonIconProps>(function A
   }
 
   return (
-    <Addon
-      as={'div'}
-      ref={ref}
-      variant={{ isError: isInvalid, type: 'icon', isDisabled: disabled }}
-      {...moreProps}
-      onMouseDown={(e) => e.preventDefault()}
-      aria-disabled={disabled}
-    >
-      {iconElement}
-    </Addon>
+    <>
+      {showAddonSeparatorLeft && <AutocompleteAddonSeparator className={classNameSeparator} />}
+      <Addon
+        as={'div'}
+        ref={ref}
+        variant={{ isError: isInvalid, type: 'icon', isDisabled: disabled }}
+        {...moreProps}
+        onMouseDown={(e) => e.preventDefault()}
+        aria-disabled={disabled}
+      >
+        {iconElement}
+      </Addon>
+      {showAddonSeparatorRight && <AutocompleteAddonSeparator className={classNameSeparator} />}
+    </>
   );
 });

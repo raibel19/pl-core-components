@@ -14,11 +14,15 @@ import {
 
 export type AutocompleteInputRef = HTMLInputElement & {};
 
-export type AutocompleteInputProps = ComponentPropsWithoutRef<'input'>;
+export type AutocompleteInputProps = ComponentPropsWithoutRef<'input'> & {
+  classNameWrapper?: string;
+};
 
 export default forwardRef<AutocompleteInputRef, AutocompleteInputProps>(function AutocompleteInput(props, ref) {
   const {
     className,
+    classNameWrapper,
+    children,
     onKeyDown: onKeyDownNative,
     onMouseDown: onMouseDownNative,
     onFocus: onFocusNative,
@@ -80,29 +84,32 @@ export default forwardRef<AutocompleteInputRef, AutocompleteInputProps>(function
   );
 
   return (
-    <PopoverTrigger asChild>
-      <Command.Input
-        asChild
-        ref={inputRef}
-        {...moreProps}
-        id={id}
-        value={inputValue}
-        onValueChange={onChange}
-        onKeyDown={handleOnkeyDown}
-        onMouseDown={handleOnMouseDown}
-        onFocus={handleOnFocus}
-        onBlur={handleOnBlur}
-      >
-        <Input
-          className={cn(
-            inputVariants({ isError: isInvalid }),
-            leftAddonWidth && 'ps-[--leftWidth]',
-            rightAddonWidth && 'pe-[--rightWidth]',
-            className || null,
-          )}
-          style={{ '--leftWidth': `${leftAddonWidth}`, '--rightWidth': `${rightAddonWidth}` } as React.CSSProperties}
-        />
-      </Command.Input>
-    </PopoverTrigger>
+    <div ref={ref} className={cn('relative w-full', classNameWrapper || null)}>
+      <PopoverTrigger asChild>
+        <Command.Input
+          asChild
+          ref={inputRef}
+          {...moreProps}
+          id={id}
+          value={inputValue}
+          onValueChange={onChange}
+          onKeyDown={handleOnkeyDown}
+          onMouseDown={handleOnMouseDown}
+          onFocus={handleOnFocus}
+          onBlur={handleOnBlur}
+        >
+          <Input
+            className={cn(
+              inputVariants({ isError: isInvalid }),
+              leftAddonWidth && 'ps-[--leftWidth]',
+              rightAddonWidth && 'pe-[--rightWidth]',
+              className || null,
+            )}
+            style={{ '--leftWidth': `${leftAddonWidth}`, '--rightWidth': `${rightAddonWidth}` } as React.CSSProperties}
+          />
+        </Command.Input>
+      </PopoverTrigger>
+      {children}
+    </div>
   );
 });

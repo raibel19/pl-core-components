@@ -84,3 +84,25 @@ export const nonOpeningKeys = [
   'Escape',
   'Delete',
 ];
+
+export type AddonSeparatorProps =
+  | {
+      showAddonSeparatorLeft?: false;
+      showAddonSeparatorRight?: false;
+      classNameSeparator?: never;
+    }
+  | {
+      showAddonSeparatorLeft: true;
+      showAddonSeparatorRight?: false;
+      classNameSeparator?: string;
+    }
+  | {
+      showAddonSeparatorLeft?: false;
+      showAddonSeparatorRight: true;
+      classNameSeparator?: string;
+    }
+  | {
+      showAddonSeparatorLeft: true;
+      showAddonSeparatorRight: true;
+      classNameSeparator?: string;
+    };

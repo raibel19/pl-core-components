@@ -11,6 +11,8 @@ import {
 } from 'react';
 
 import { cn } from '../../../lib/utils';
+import { Command, CommandList } from '../../ui/command';
+import { Popover } from '../../ui/popover';
 import {
   AutocompleteActionsContext,
   AutocompleteActionsContextProps,
@@ -232,7 +234,17 @@ export default forwardRef(function AutocompleteRoot<Data = undefined>(
           <AutocompleteStableContext.Provider value={contextStableValue}>
             <AutocompleteVolatileContext.Provider value={contextVolatileValue}>
               <AutocompleteActionsContext.Provider value={contextActionsValue}>
-                {children}
+                <Popover open={state.isOpen} onOpenChange={onTooglePopover}>
+                  <Command
+                    shouldFilter={false}
+                    value={state.preSelectedValue}
+                    onValueChange={onPreSelectItem}
+                    className="[&_label]:hidden"
+                  >
+                    {!state.isOpen && <CommandList aria-hidden="true" className="hidden" />}
+                    {children}
+                  </Command>
+                </Popover>
               </AutocompleteActionsContext.Provider>
             </AutocompleteVolatileContext.Provider>
           </AutocompleteStableContext.Provider>

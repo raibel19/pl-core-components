@@ -8,8 +8,9 @@ import { cn } from '../../../lib/utils';
 import Addon from '../../primitives/addon';
 import AutocompleteAddonSeparator from './autocomplete-addon-separator';
 import { useAutocompleteStableContext } from './context';
+import { AddonSeparatorProps } from './types/types';
 
-export interface AutocompleteAddonErrorProps {
+export type AutocompleteAddonErrorProps = {
   className?: string | undefined;
   classNameHoverContent?: string | undefined;
   classNameIcon?: string | undefined;
@@ -18,15 +19,21 @@ export interface AutocompleteAddonErrorProps {
   hoverContent?: ReactNode;
   icon?: React.ReactElement | undefined;
   show?: boolean;
-  showAddonSeparatorLeft?: boolean;
-  showAddonSeparatorRight?: boolean;
   tooltipConfig?: Omit<TooltipProps, 'children'>;
   tooltipContent?: ReactNode;
   tooltipProviderConfig?: Omit<TooltipProviderProps, 'children'>;
-}
+} & AddonSeparatorProps;
 
 export default forwardRef<HTMLDivElement, AutocompleteAddonErrorProps>(function InputAddonError(props, ref) {
-  const { classNameIcon, icon, show = true, showAddonSeparatorLeft, showAddonSeparatorRight, ...moreProps } = props;
+  const {
+    classNameIcon,
+    classNameSeparator,
+    icon,
+    show = true,
+    showAddonSeparatorLeft,
+    showAddonSeparatorRight,
+    ...moreProps
+  } = props;
 
   const { isInvalid, disabled } = useAutocompleteStableContext();
 
@@ -52,7 +59,7 @@ export default forwardRef<HTMLDivElement, AutocompleteAddonErrorProps>(function 
 
   return (
     <>
-      {showAddonSeparatorLeft && <AutocompleteAddonSeparator />}
+      {showAddonSeparatorLeft && <AutocompleteAddonSeparator className={classNameSeparator} />}
       <Addon
         as={'div'}
         ref={ref}
@@ -63,7 +70,7 @@ export default forwardRef<HTMLDivElement, AutocompleteAddonErrorProps>(function 
       >
         {iconElement}
       </Addon>
-      {showAddonSeparatorRight && <AutocompleteAddonSeparator />}
+      {showAddonSeparatorRight && <AutocompleteAddonSeparator className={classNameSeparator} />}
     </>
   );
 });

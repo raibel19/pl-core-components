@@ -2,16 +2,37 @@ import { forwardRef, ReactNode } from 'react';
 
 import { cn } from '../../../lib/utils';
 import { Separator } from '../../ui/separator';
+import AutocompleteHeaderClearButton from './autocomplete-header-clear-button';
 
-export interface AutocompleteHeaderProps {
+type AutocompleteHeaderClearButtonProps =
+  | {
+      showClearButton?: false;
+      classNameClearButton?: never;
+      classNameIconClearButton?: never;
+    }
+  | {
+      showClearButton: true;
+      classNameClearButton?: string;
+      classNameIconClearButton?: string;
+    };
+
+export type AutocompleteHeaderProps = {
   children?: ReactNode;
   className?: string;
   showSeparator?: boolean;
   classNameSeparator?: string;
-}
+} & AutocompleteHeaderClearButtonProps;
 
 export default forwardRef<HTMLDivElement, AutocompleteHeaderProps>(function AutocompleteHeader(props, ref) {
-  const { children, className, showSeparator = true, classNameSeparator } = props;
+  const {
+    children,
+    className,
+    classNameClearButton,
+    classNameIconClearButton,
+    classNameSeparator,
+    showClearButton = true,
+    showSeparator = true,
+  } = props;
 
   return (
     <>
@@ -24,6 +45,9 @@ export default forwardRef<HTMLDivElement, AutocompleteHeaderProps>(function Auto
         onMouseDown={(e) => e.preventDefault()}
       >
         {children}
+        {showClearButton && (
+          <AutocompleteHeaderClearButton className={classNameClearButton} classNameIcon={classNameIconClearButton} />
+        )}
       </div>
       {showSeparator && <Separator orientation="horizontal" className={cn('bg-border', classNameSeparator || null)} />}
     </>
