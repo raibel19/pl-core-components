@@ -66,6 +66,7 @@ export type {
   IItem,
   Items,
   ItemsWithIdentifier,
+  Timeout,
 } from './types/types';
 
 // eslint-disable-next-line react-refresh/only-export-components

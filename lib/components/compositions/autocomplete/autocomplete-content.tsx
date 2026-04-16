@@ -3,6 +3,7 @@ import { ComponentPropsWithoutRef, forwardRef, ReactNode, useEffect, useState } 
 import { cn } from '../../../lib/utils';
 import { PopoverContent } from '../../ui/popover';
 import { useAutocompleteStableContext } from './context';
+import { Timeout } from './types/types';
 export interface AutocompleteContentProps extends ComponentPropsWithoutRef<typeof PopoverContent> {
   children: ReactNode;
   className?: string;
@@ -16,7 +17,7 @@ export default forwardRef<HTMLDivElement, AutocompleteContentProps>(function Aut
   const [shouldRender, setShouldRender] = useState(isOpen);
 
   useEffect(() => {
-    let timeOut: NodeJS.Timeout;
+    let timeOut: Timeout;
 
     if (isOpen) setShouldRender(true);
     else {

@@ -1,3 +1,5 @@
+export type Timeout = ReturnType<typeof setTimeout>;
+
 export type Actions = 'INPUT_CHANGE' | 'ITEM_SELECTED' | 'RESET';
 
 export type AutocompleteStateChangePayload<Data> = {
